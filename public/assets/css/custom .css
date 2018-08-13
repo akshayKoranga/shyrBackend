@@ -1,0 +1,35 @@
+.btn-primary {
+	background-color: #3279b6;
+	border-color:#3279b6; 
+}
+.badge-permanent{
+	background-color: #18a689;
+	color:#ffffff; 
+
+}
+/*.pull-right{
+	background-color: #3279b6;
+	border-color:#3279b6; 
+}*/
+.form-login{
+	border-radius: 20px;
+}
+.security-logo{
+	margin-top:-.5px;
+}
+.login-welcome{
+	margin-top: 40px;
+}
+.test{
+	color:grey;
+}
+.view{
+	    background-color: #e9ecef;
+}
+.profile{
+	height: 62px;
+}
+.unit{
+margin-top:20px;
+}
+

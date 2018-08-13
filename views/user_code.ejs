@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="/assets/css/bootstrap.css">
+</head>
+
+<body>
+
+<p>Shayer</p>
+
+<form>
+  <div class="panel panel-default">
+         <div class="panel-heading" data-toggle="collapse" data-target="#user-codes">
+             <h4>User Game Codes</h4>
+         </div>
+
+      <div class="panel-body collapse" id="user-codes">
+          <code>
+              <dl class="dl-horizontal">
+                  <dt>url:</dt>
+                  <dd>http://52.202.52.164:3000/api/user-codes</dd>
+                  <dt>Request:</dt>
+                  <dd>GET</dd>
+              </dl>
+          </code>
+          <form target="_new" class="form-horizontal" id="code_form" action="/api/user-codes"
+              method="get">
+
+           <div class="form-group">
+               <label class="col-sm-4 control-label">session_id </label>
+               <div class="col-sm-8">
+                   <input class="form-control" type="text" name="session_id">
+               </div>
+               <label class="col-sm-4 control-label">event_id </label>
+               <div class="col-sm-8">
+                   <input class="form-control" type="text" name="event_id">
+               </div>
+               <label class="col-sm-4 control-label">code</label>
+               <div class="col-sm-8">
+                   <input class="form-control" type="text" name="code">
+               </div>
+                  <div>&nbsp;</div>
+                  <div class="col-sm-8 col-sm-offset-2">
+                      <input class="btn btn-success" type="submit">
+                  </div>
+              </div>
+          </form>
+      </div>
+ </div>
+</form>
+
+<script src="/socket.io/socket.io.js" type="text/javascript"></script>
+<script type="text/javascript" src="/assets/js/jquery-2.1.1.js"></script>
+<script type="text/javascript" src="/assets/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/assets/js/index.js"></script>
+</body>
+
+</html>

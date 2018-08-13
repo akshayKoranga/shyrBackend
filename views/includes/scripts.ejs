@@ -1,0 +1,181 @@
+<script src="/assets/js/jquery-2.1.1.js"></script>
+    <script src="/assets/js/bootstrap.min.js"></script>
+    <script src="/assets/js/plugins/metisMenu/jquery.metisMenu.js"></script>
+    <script src="/assets/js/plugins/slimscroll/jquery.slimscroll.min.js"></script>
+ <!-- Flot -->
+    <script src="/assets/js/plugins/flot/jquery.flot.js"></script>
+    <script src="/assets/js/plugins/flot/jquery.flot.tooltip.min.js"></script>
+  <!-- Peity -->
+    <script src="/assets/js/plugins/peity/jquery.peity.min.js"></script>
+<script src="/assets/js/plugins/fullcalendar/moment.min.js"></script>
+  <script src="/assets/js/plugins/fullcalendar/fullcalendar.min.js"></script>
+
+<script src="/assets/js/plugins/dataTables/jquery.dataTables.js"></script>
+    <script src="/assets/js/plugins/dataTables/dataTables.bootstrap.js"></script>
+    <script src="/assets/js/plugins/dataTables/dataTables.responsive.js"></script>
+    <script src="/assets/js/plugins/dataTables/dataTables.tableTools.min.js"></script>
+<!-- Custom and plugin javascript -->
+     <script src="/assets/js/inspinia.js"></script>
+    <script src="/assets/js/plugins/pace/pace.min.js"></script>
+
+    <script src="/assets/js/transition.js"></script>
+    <script src="/assets/js/collapse.js"></script>
+ <script src="/assets/js/bootstrap-datetimepicker.js"></script>
+
+      <!-- Date range use moment.js same as full calendar plugin -->
+    <script src="/assets/js/plugins/fullcalendar/moment.min.js"></script>
+
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.min.js"></script> -->
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+<script>
+
+$(function() {
+  $('#toggle-two').change(function() {
+    $('#event_time').toggle();
+    if($(this).prop("checked") != true){
+     $('#e_time').val("");
+    }
+  })
+
+})
+
+$(document).on("click", ".open-deleteEventDialog", function () {
+     var myEventId = $(this).data('id');
+     document.getElementById("event_id").value = myEventId;
+    $('#deleteEvent').modal('show');
+});
+
+
+$( document ).ready(function() {
+$('.js-example-basic-multiple').select2({
+  width: 'resolve',
+  theme: "classic"
+});
+$(".js-example-basic-multiple").on("select2:select", function (evt) {
+  var element = evt.params.data.element;
+  var $element = $(element);
+
+  $element.detach();
+  $(this).append($element);
+  $(this).trigger("change");
+});
+});
+
+</script>
+
+<script>
+function addCash(element){
+  var num = $('#num_win').val();
+
+  var myNode = document.getElementById("new");
+  while (myNode.firstChild) {
+    myNode.removeChild(myNode.firstChild);
+  }
+
+  for(var i = 1; i <= num ; i++){
+  var p = document.getElementById('new');
+
+  var parentdiv = document.createElement('div');
+  parentdiv.setAttribute('class', 'form-group');
+  parentdiv.setAttribute('id', 'sub-winner');
+
+  var label_el = document.createElement('label');
+  label_el.setAttribute('class', 'col-lg-3 control-label');
+  label_el.innerText = 'Cash prize for winner ' + i;
+  // input_el.setAttribute('style','color:black;');
+
+  var childdiv = document.createElement('div');
+  childdiv.setAttribute('class', 'col-lg-6');
+
+  var input_el = document.createElement('input');
+  input_el.setAttribute('type', 'text');
+  input_el.setAttribute('name', 'winner' + i);
+  input_el.setAttribute('placeholder','Cash prize for winner ' + i);
+  input_el.setAttribute('class', 'form-control cash_prize');
+
+
+  var newparentdiv = document.createElement('div');
+  newparentdiv.setAttribute('class', 'form-group');
+  newparentdiv.setAttribute('id', 'sub-winner');
+
+  var label_new = document.createElement('label');
+  label_new.setAttribute('class', 'col-lg-3 control-label');
+  label_new.innerText = 'Code for winner ' + i;
+
+  var newchilddiv = document.createElement('div');
+  newchilddiv.setAttribute('class', 'col-lg-6');
+
+  var input_new = document.createElement('input');
+  input_new.setAttribute('type', 'text');
+  input_new.setAttribute('name', 'winning_code' + i);
+  input_new.setAttribute('placeholder','Code for winner ' + i);
+  input_new.setAttribute('class', 'form-control winner_code');
+
+
+  var jumbledparentdiv = document.createElement('div');
+  jumbledparentdiv.setAttribute('class', 'form-group');
+  jumbledparentdiv.setAttribute('id', 'sub-winner');
+
+  var label_jumbled = document.createElement('label');
+  label_jumbled.setAttribute('class', 'col-lg-3 control-label');
+  label_jumbled.innerText = 'Jumbled Code for winner ' + i;
+
+  var jumbledchilddiv = document.createElement('div');
+  jumbledchilddiv.setAttribute('class', 'col-lg-6');
+
+  var input_jumbled = document.createElement('input');
+  input_jumbled.setAttribute('type', 'text');
+  input_jumbled.setAttribute('name', 'jumbled_code' + i);
+  input_jumbled.setAttribute('placeholder','Jumbled Code for winner ' + i);
+  input_jumbled.setAttribute('class', 'form-control jumbled_code');
+
+  p.appendChild(parentdiv);
+  parentdiv.appendChild(label_el);
+  parentdiv.appendChild(childdiv);
+  childdiv.appendChild(input_el);
+
+  p.appendChild(newparentdiv);
+  newparentdiv.appendChild(label_new);
+  newparentdiv.appendChild(newchilddiv);
+  newchilddiv.appendChild(input_new);
+
+  p.appendChild(jumbledparentdiv);
+  jumbledparentdiv.appendChild(label_jumbled);
+  jumbledparentdiv.appendChild(jumbledchilddiv);
+  jumbledchilddiv.appendChild(input_jumbled);
+}
+}
+</script>
+
+<script type="text/javascript">
+jQuery.fn.multiselect = function() {
+    $(this).each(function() {
+        var checkboxes = $(this).find("input:checkbox");
+        checkboxes.each(function() {
+            var checkbox = $(this);
+            // Highlight pre-selected checkboxes
+            if (checkbox.prop("checked"))
+                checkbox.parent().addClass("multiselect-on");
+
+            // Highlight checkboxes that the user selects
+            checkbox.click(function() {
+                if (checkbox.prop("checked"))
+                    checkbox.parent().addClass("multiselect-on");
+                else
+                    checkbox.parent().removeClass("multiselect-on");
+            });
+        });
+    });
+};
+</script>
+
+    <script type="text/javascript">
+        $(function () {
+            $('#datetimepicker1').datetimepicker();
+            $('#datetimepicker2').datetimepicker();
+            $('#datetimepicker3').datetimepicker();
+            $('#datetimepicker4').datetimepicker();
+            $('#datetimepicker5').datetimepicker();
+        });
+    </script>

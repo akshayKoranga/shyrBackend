@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <% include head.ejs %>
+</head>
+
+<body>
+<div id="wrapper">
+    <% include sidebar.ejs %>
+  <div id="page-wrapper" class="gray-bg" style="float:left;width: 100%;padding-right:17%;">
+    <% include header.ejs %>
+    <%- body%>
+    <% include scripts.ejs %>
+    <% include footer.ejs %>
+  </div>
+</div>
+</body>
+</html>

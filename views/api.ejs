@@ -1,0 +1,310 @@
+<?php $i=1; ?>
+<!DOCTYPE html>
+<html>
+<head>
+<title>APIs</title>
+<link rel="stylesheet" href="/assets/css/bootstrap.css">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<meta http-equiv="Content-type" content="text/html; charset=UTF-8">
+<style>
+</style>
+</head>
+<body class="container" style="margin-bottom: 50px;">
+    <h1 class="text-center">Shayer APIs</h1>
+    <p>
+        <b>Error response structure:</b>
+
+
+    <pre>
+        {
+            "error": "bad_request",
+            "error_description": "The quest is poorly structured or contains invalid data. The email field is required. The password field is required. The device type field is required. The device id field is required. The device token field is required."
+        }
+    </pre>
+    <br>
+    <b>Http request status codes:</b>
+    <br> 200 - Ok
+    <br> 400 - bad_request, when there is missing parameter or there are bad values in a
+    request
+    <br> 401 - unauthorized, when request is made without session_id or format of
+    session_id is invalid
+    <br> 403 - forbidden, when session_id is either expired or invalid
+    <br>
+    </p>
+    <p>Note: * fields are mandatory.</p>
+
+    <b> URL : http://52.202.52.164:3000/api/ </b>
+
+    <div class="panel panel-default">
+           <div class="panel-heading" data-toggle="collapse" data-target="#login">
+               <h4>1.Login</h4>
+           </div>
+
+        <div class="panel-body collapse" id="login">
+            <code>
+                <dl class="dl-horizontal">
+                    <dt>url:</dt>
+                    <dd>http://52.202.52.164:3000/api/login</dd>
+                    <dt>Request:</dt>
+                    <dd>POST</dd>
+                </dl>
+            </code>
+            <form target="_new" class="form-horizontal" action="/api/login"
+                method="post" enctype="multipart/form-data">
+
+             <div class="form-group">
+                 <label class="col-sm-4 control-label">email </label>
+                 <div class="col-sm-8">
+                     <input class="form-control" type="text" name="email">
+                 </div>
+                 <label class="col-sm-4 control-label">password </label>
+                 <div class="col-sm-8">
+                     <input class="form-control" type="password" name="password">
+                 </div>
+                 <label class="col-sm-4 control-label">device_type </label>
+                 <div class="col-sm-8">
+                     <input class="form-control" type="text" required name="device_type">
+                 </div>
+                 <label class="col-sm-4 control-label">device_token </label>
+                 <div class="col-sm-8">
+                     <input class="form-control" type="text" name="device_token">
+                 </div>
+                 <label class="col-sm-4 control-label">device_id </label>
+                 <div class="col-sm-8">
+                     <input class="form-control" type="text" name="device_id">
+                 </div>
+                 <label class="col-sm-4 control-label">locale</label>
+                 <div class="col-sm-8">
+                     <input class="form-control" type="text" name="locale">
+                 </div>
+                    <div>&nbsp;</div>
+                    <div class="col-sm-8 col-sm-offset-2">
+                        <input class="btn btn-success" type="submit">
+                    </div>
+                </div>
+            </form>
+        </div>
+   </div>
+
+        <div class="panel panel-default">
+            <div class="panel-heading" data-toggle="collapse" data-target="#user-register">
+                <h4>2. User Signup</h4>
+            </div>
+            <div class="panel-body collapse" id="user-register">
+                <code>
+                    <dl class="dl-horizontal">
+                        <dt>url:</dt>
+                        <dd>http://52.202.52.164:3000/api/signup</dd>
+                        <dt>Request:</dt>
+                        <dd>POST</dd>
+                    </dl>
+                </code>
+                <form target="_new" class="form-horizontal" action="/api/signup"
+                      enctype="multipart/form-data" method="post">
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label">name*</label>
+                        <div class="col-sm-8">
+                            <input class="form-control" type="text" name="name">
+                        </div>
+                        <label class="col-sm-4 control-label">email*</label>
+                        <div class="col-sm-8">
+                            <input class="form-control" type="text" name="email">
+                        </div>
+                        <label class="col-sm-4 control-label">password*</label>
+                        <div class="col-sm-8">
+                            <input class="form-control" type="password" name="password">
+                        </div>
+                        <label class="col-sm-4 control-label">phone*</label>
+                        <div class="col-sm-8">
+                            <input class="form-control" type="text" name="phone">
+                        </div>
+                        <label class="col-sm-4 control-label">gender</label>
+                        <div class="col-sm-8">
+                            <input class="form-control" type="text" name="gender">
+                        </div>
+                        <label class="col-sm-4 control-label">device_type*</label>
+                        <div class="col-sm-8">
+                            <input class="form-control" type="text" name="device_type">
+                        </div>
+                        <label class="col-sm-4 control-label">device_id</label>
+                        <div class="col-sm-8">
+                            <input class="form-control" type="text" name="device_id">
+                        </div>
+                        <label class="col-sm-4 control-label">device_token</label>
+                        <div class="col-sm-8">
+                            <input class="form-control" type="text" name="device_token">
+                        </div>
+                       <label class="col-sm-4 control-label">locale</label>
+                        <div class="col-sm-8">
+                            <input class="form-control" type="text" name="locale">
+                        </div>
+                        <div>&nbsp;</div>
+                        <div class="col-sm-8 col-sm-offset-2">
+                            <input class="btn btn-success" type="submit">
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    <div class="panel panel-default">
+           <div class="panel-heading" data-toggle="collapse" data-target="#show-events">
+               <h4>3.Show Events</h4>
+           </div>
+
+        <div class="panel-body collapse" id="show-events">
+            <code>
+                <dl class="dl-horizontal">
+                    <dt>url:</dt>
+                    <dd>http://52.202.52.164:3000/api/events</dd>
+                    <dt>Request:</dt>
+                    <dd>GET</dd>
+                </dl>
+            </code>
+            <form target="_new" class="form-horizontal" action="/api/events"
+                method="get">
+
+             <div class="form-group">
+                 <label class="col-sm-4 control-label">session_id </label>
+                 <div class="col-sm-8">
+                     <input class="form-control" type="text" name="session_id">
+                 </div>
+                 <label class="col-sm-4 control-label">status </label>
+                 <div class="col-sm-8">
+                     <input class="form-control" type="text" name="status">
+                 </div>
+                 <label class="col-sm-4 control-label">limit (default=50)</label>
+                 <div class="col-sm-8">
+                     <input class="form-control" type="text" name="limit">
+                 </div>
+                 <label class="col-sm-4 control-label">page (default=1)</label>
+                 <div class="col-sm-8">
+                     <input class="form-control" type="text" name="page">
+                 </div>
+                 <label class="col-sm-4 control-label">locale</label>
+                 <div class="col-sm-8">
+                     <input class="form-control" type="text" name="locale">
+                 </div>
+                    <div>&nbsp;</div>
+                    <div class="col-sm-8 col-sm-offset-2">
+                        <input class="btn btn-success" type="submit">
+                    </div>
+                </div>
+            </form>
+        </div>
+   </div>
+
+   <div class="panel panel-default">
+          <div class="panel-heading" data-toggle="collapse" data-target="#show-hints">
+              <h4>4.Show Hints</h4>
+          </div>
+
+       <div class="panel-body collapse" id="show-hints">
+           <code>
+               <dl class="dl-horizontal">
+                   <dt>url:</dt>
+                   <dd>http://52.202.52.164:3000/api/hints</dd>
+                   <dt>Request:</dt>
+                   <dd>GET</dd>
+               </dl>
+           </code>
+           <form target="_new" class="form-horizontal" action="/api/hints"
+               method="get">
+
+            <div class="form-group">
+                <label class="col-sm-4 control-label">session_id </label>
+                <div class="col-sm-8">
+                    <input class="form-control" type="text" name="session_id">
+                </div>
+                <label class="col-sm-4 control-label">locale</label>
+                <div class="col-sm-8">
+                    <input class="form-control" type="text" name="locale">
+                </div>
+                   <div>&nbsp;</div>
+                   <div class="col-sm-8 col-sm-offset-2">
+                       <input class="btn btn-success" type="submit">
+                   </div>
+               </div>
+           </form>
+       </div>
+  </div>
+
+  <div class="panel panel-default">
+         <div class="panel-heading" data-toggle="collapse" data-target="#change-password">
+             <h4>5.Change Password</h4>
+         </div>
+
+      <div class="panel-body collapse" id="change-password">
+          <code>
+              <dl class="dl-horizontal">
+                  <dt>url:</dt>
+                  <dd>http://52.202.52.164:3000/api/changePassword</dd>
+                  <dt>Request:</dt>
+                  <dd>POST</dd>
+              </dl>
+          </code>
+          <form target="_new" class="form-horizontal" action="/api/changePassword"
+              method="post" enctype="multipart/form-data">
+
+           <div class="form-group">
+               <label class="col-sm-4 control-label">session_id </label>
+               <div class="col-sm-8">
+                   <input class="form-control" type="text" name="session_id">
+               </div>
+               <label class="col-sm-4 control-label">old_password </label>
+               <div class="col-sm-8">
+                   <input class="form-control" type="password" name="old_password">
+               </div>
+               <label class="col-sm-4 control-label">new_password </label>
+               <div class="col-sm-8">
+                   <input class="form-control" type="password" name="new_password">
+               </div>
+                  <div>&nbsp;</div>
+                  <div class="col-sm-8 col-sm-offset-2">
+                      <input class="btn btn-success" type="submit">
+                  </div>
+              </div>
+          </form>
+      </div>
+</div>
+
+<div class="panel panel-default">
+    <div class="panel-heading" data-toggle="collapse"
+        data-target="#user-forgot-password">
+        <h4>6. User Forgot Password</h4>
+    </div>
+    <div class="panel-body collapse" id="user-forgot-password">
+        <code>
+            <dl class="dl-horizontal">
+                <dt>url:</dt>
+                <dd>http://52.202.52.164:3000/api/forgotPassword</dd>
+                <dt>Request:</dt>
+                <dd>POST</dd>
+            </dl>
+        </code>
+        <form target="_new" class="form-horizontal"
+            action="/api/forgotPassword" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label class="col-sm-4 control-label">email*</label>
+                <div class="col-sm-8">
+                    <input class="form-control" type="text" name="email">
+                </div>
+                <label class="col-sm-4 control-label">locale</label>
+                <div class="col-sm-8">
+                    <input class="form-control" type="text" name="locale">
+                </div>
+                <div>&nbsp;</div>
+                <div class="col-sm-8 col-sm-offset-2">
+                    <input class="btn btn-success" type="submit">
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+    <script type="text/javascript" src="/assets/js/jquery-2.1.1.js"></script>
+    <script type="text/javascript" src="/assets/js/bootstrap.min.js"></script>
+</body>
+</html>
