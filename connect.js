@@ -6,8 +6,8 @@ Promise.promisifyAll(require('mysql/lib/Pool').prototype);
 
 var pool = mysql.createPool(
   {
-  host : 'localhost',
-  user : 'root',
+  host : '52.202.52.164',
+  user : 'shayer',
   password : 'aativa',
   database : 'shayer'
   }

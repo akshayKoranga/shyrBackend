@@ -4,6 +4,7 @@ var upload = multer();
 
 var homeController = require('../controller/WebHomeController');
 var eventController = require('../controller/EventController');
+const CONSTANTS = require('../const/constant');
 
 var router = express.Router();
 
@@ -14,7 +15,7 @@ var auth = (req, res, next) => {
     return next();
   }
   else{
-   res.redirect('/admin/login');
+   res.send('/admin/login');
   }
 }
 

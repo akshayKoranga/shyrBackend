@@ -23,6 +23,7 @@ router.get('/resetPassword/:token',homeController.showResetPassword);
 router.post('/resetPassword',homeController.resetPassword);
 
 router.get('/events',auth.appAuth,eventController.showEvents);
+router.get('/upcoming-events',auth.appAuth,eventController.upcomingEvents);
 
 router.get('/hints',auth.appAuth,eventController.showHints);
 

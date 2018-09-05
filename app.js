@@ -9,6 +9,7 @@ var fileUpload = require('express-fileupload');
 var moment = require('moment');
 var socketIO = require('socket.io');
 var processImage = require('express-processimage');
+const swaggerUi = require('swagger-ui-express');
 // var cookieSession = require('cookie-session')
 
 var codes = require('./utils/codes');
@@ -27,6 +28,7 @@ app.set('view engine','ejs');
 
 var middleware = [
   express.static('public'),
+  express.static('docs'),
   bodyParser.urlencoded({
     extended : false
   }),
@@ -41,6 +43,13 @@ var middleware = [
 ];
 
 app.use(middleware);
+
+let options = {
+  explorer: true,
+  swaggerUrl: '/app.json'
+};
+//app.use('/', express.static('docs'));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(null, options));
 
 app.use('/admin',routes); //adding a prefix 'admin' to all web routes. Any route beginning with 'admin' will be handled by the specified module
 app.use('/api',apiRoutes);

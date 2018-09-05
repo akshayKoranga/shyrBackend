@@ -4,6 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
+    "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -29,9 +30,11 @@
     "nodemailer": "^4.6.5",
     "pm2": "^2.10.4",
     "randomstring": "^1.1.5",
-    "sharp": "^0.20.3"
+    "sharp": "^0.20.3",
+    "swagger-ui-dist": "^3.18.2"
   },
   "devDependencies": {
-    "socket.io": "^1.7.4"
+    "socket.io": "^1.7.4",
+    "swagger-ui-express": "^4.0.0"
   }
 }
