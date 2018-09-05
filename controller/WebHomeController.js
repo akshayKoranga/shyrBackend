@@ -4,7 +4,10 @@ var md5 = require('md5');
 var mysql = require('mysql');
 
 var connection = require('../connect');
+const UniversalFunction = require('../utils/universalFunctions');
+const CONSTANTS = require('../const/constants');
 
+/*
 var login = (req , res) => {
 res.render('login', {errors : {}}, (err, html) =>{
   if(err){
@@ -15,17 +18,24 @@ res.render('login', {errors : {}}, (err, html) =>{
   }
 });
 }
+*/
 
-
+/**
+ * @description handler for admin login
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ */
 var postLogin = (req , res , next) => {
      req.assert('email','Email is required').notEmpty();
      req.assert('password','Password is required').notEmpty();
      var errors = req.validationErrors();
      if(errors){
        console.log(errors);
-       res.render('login',{
-         errors : errors
-       });
+      //  res.render('login',{
+      //    errors : errors
+      //  });
+      UniversalFunction.sendError(res, errors);
      }
      else{
       var email = req.body.email;
@@ -36,22 +46,14 @@ var postLogin = (req , res , next) => {
           if(results[0].password == password){
             req.session.email = email;
             req.session.admin = true;
-            showDashboard(req,res);
+            UniversalFunction.sendSuccess(res, CONSTANTS.STATUS_MSG.SUCCESS.LOGIN_SUCCESS);
           }
           else{
-            var errors = [];
-            errors.push({msg : 'Incorrect password' });
-            res.render('login',{
-              errors : errors
-            });
+            UniversalFunction.sendError(res, CONSTANTS.STATUS_MSG.ERROR.INCORRECT_PASSWORD);
           }
         }
         else{
-          var errors = [];
-          errors.push({msg : 'Invalid details' });
-          res.render('login',{
-            errors : errors
-          });
+          UniversalFunction.sendError(res, CONSTANTS.STATUS_MSG.ERROR.INVALID_CREDENTIALS);
         }
       })
       .catch((err) => {
@@ -64,10 +66,12 @@ var postLogin = (req , res , next) => {
 var showDashboard = (req, res) => {
   connection.query('Select COUNT(*) as count from events')
   .then((results) => {
-    res.render('dashboard', {count : results[0]['count']});
+    UniversalFunction.sendSuccess(res, {eventCount : results[0]['count']});
+    //res.render('dashboard', {count : results[0]['count']});
   })
   .catch((err) => {
     console.log(err);
+    UniversalFunction.sendError(res, err);
   })
 }
 
@@ -118,7 +122,6 @@ var logout = (req, res) => {
 }
 
 module.exports = {
-  login,
   showDashboard,
   showChangepassword,
   postLogin,

@@ -4,7 +4,8 @@ var upload = multer();
 
 var homeController = require('../controller/WebHomeController');
 var eventController = require('../controller/EventController');
-const CONSTANTS = require('../const/constant');
+const UniversalFunction = require('../utils/universalFunctions');
+const CONSTANTS = require('../const/constants');
 
 var router = express.Router();
 
@@ -15,18 +16,22 @@ var auth = (req, res, next) => {
     return next();
   }
   else{
-   res.send('/admin/login');
+    UniversalFunction.sendError(res, CONSTANTS.STATUS_MSG.ERROR.UNAUTHORIZED_ACCESS);
   }
 }
 
 
-router.get('/login',homeController.login);
+//router.get('/login',homeController.login);
 
-router.post('/login',upload.array(),homeController.postLogin);
+/**
+ * @param email
+ * @param password
+ */
+router.post('/login', homeController.postLogin);
 
-router.get('/dashboard',auth,homeController.showDashboard);
+router.get('/dashboard', auth, homeController.showDashboard);
 
-router.get('/events',auth,eventController.showEvents);
+router.get('/events', auth, eventController.showEvents);
 
 router.get('/delete_events',auth,eventController.deleteEvents);
 

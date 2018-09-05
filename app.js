@@ -32,6 +32,7 @@ var middleware = [
   bodyParser.urlencoded({
     extended : false
   }),
+  bodyParser.json(),
   validator(),
   session({
     secret : randomString.generate(10),

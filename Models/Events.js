@@ -1,13 +1,13 @@
 var mysql = require('mysql');
 var connection = require('../connect');
 
-var constants = require('../lib/constants');
+const CONSTANTS = require('./../const/constants');
 
 var getResponse = (events,result) => {
   var event = {};
   event.id = events.id;
   event.name = events.event_name;
-  event.cash_prize = events.cash_prize + constants.CURRENCY;
+  event.cash_prize = events.cash_prize + CONSTANTS.DATABASE.CURRENCY;
   event.description = events.description;
   event.game_play_time = events.event_time ? events.event_time*1000 : 0;
   event.winners = result;
@@ -17,7 +17,7 @@ var getResponse = (events,result) => {
     var rest_data = [];
     results.forEach((rest) => {
       if(rest){
-        rest_data.push({name : rest.name , logo : constants.RESTAURANT_IMAGE_PATH + rest.logo});
+        rest_data.push({name : rest.name , logo : CONSTANTS.DATABASE.RESTAURANT_IMAGE_PATH + rest.logo});
       }
     })
     event.restaurant = rest_data;
@@ -30,7 +30,7 @@ var getTestResponse = (events,result,sockets) => {
   var event = {};
   event.id = events.id;
   event.name = events.event_name;
-  event.cash_prize = events.cash_prize + constants.CURRENCY;
+  event.cash_prize = events.cash_prize + CONSTANTS.DATABASE.CURRENCY;
   event.jumbled_code = '32323';
   event.description =sockets.toString();
   event.winners = result;
@@ -41,7 +41,7 @@ var getTestResponse = (events,result,sockets) => {
     var rest_data = [];
     results.forEach((rest) => {
       if(rest){
-        rest_data.push({name : rest.name , logo : constants.RESTAURANT_IMAGE_PATH + rest.logo});
+        rest_data.push({name : rest.name , logo : CONSTANTS.DATABASE.RESTAURANT_IMAGE_PATH + rest.logo});
       }
     })
     event.restaurant = rest_data;

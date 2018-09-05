@@ -3,7 +3,7 @@ var connection = require('../connect');
 var mysql = require('mysql');
 var randomString = require('randomstring');
 
-var constants = require('../lib/constants');
+const CONSTANTS = require('./../const/constants');
 
 var appLogin = (req, userId) => {
     var device_token = req.body.device_token;
@@ -48,7 +48,7 @@ var getResponse = (req, user) => {
       profile.user_id = user[i].id;
       profile.name = user[i].name;
       profile.email = user[i].email;
-      profile.image = constants.USER_IMAGE_PATH + user[i].image;
+      profile.image = CONSTANTS.DATABASE.USER_IMAGE_PATH + user[i].image;
       profile.phone_number = user[i].phone_number;
       profile.gender = user[i].gender;
    }

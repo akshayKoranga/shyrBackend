@@ -3,7 +3,7 @@ var mysql = require('mysql');
 var connection = require('./../connect');
 var users = require('./../Models/Users');
 var events = require('./../Models/Events');
-var constants = require('./../lib/constants');
+const CONSTANTS = require('./../const/constants');
 
 var eventConnect = (data ,socket_id ,callback) => {
   console.log('start');
@@ -104,13 +104,13 @@ var fetchEvent = (event_id , sockets ,callback) => {
               var user_name = '';
             }
             if(data.image){
-              var user_image = constants.USER_IMAGE_PATH + data.image;
+              var user_image = CONSTANTS.DATABASE.USER_IMAGE_PATH + data.image;
             }
             else{
               var user_image = '';
             }
 
-            result.push({cash_prize : data.cash_prize + constants.CURRENCY , position : data.position ,
+            result.push({cash_prize : data.cash_prize + CONSTANTS.DATABASE.CURRENCY , position : data.position ,
                          winning_code : data.winning_code, jumbled_code : data.jumbled_code , is_available : is_available ,
                          user_name : user_name , user_image : user_image});
           }

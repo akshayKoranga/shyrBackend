@@ -4,7 +4,7 @@ var serialize = require('node-serialize');
 
 var connection = require('./../../connect');
 var events = require('./../../Models/Events');
-var constants = require('./../../lib/constants');
+const CONSTANTS = require('./../../const/constants');
 
 var showEvents = (req, res) => {
   if(req.query.limit){
@@ -51,13 +51,13 @@ var showEvents = (req, res) => {
               var user_name = '';
             }
             if(data.image){
-              var user_image = constants.USER_IMAGE_PATH + data.image;
+              var user_image = CONSTANTS.DATABASE.USER_IMAGE_PATH + data.image;
             }
             else{
               var user_image = '';
             }
 
-            result.push({cash_prize : data.cash_prize + constants.CURRENCY , position : data.position ,
+            result.push({cash_prize : data.cash_prize + CONSTANTS.DATABASE.CURRENCY , position : data.position ,
                          winning_code : data.winning_code, jumbled_code : data.jumbled_code , is_available : is_available ,
                          user_name : user_name , user_image : user_image});
           }
@@ -125,13 +125,13 @@ var upcomingEvents = (req, res) => {
               var user_name = '';
             }
             if(data.image){
-              var user_image = constants.USER_IMAGE_PATH + data.image;
+              var user_image = CONSTANTS.DATABASE.USER_IMAGE_PATH + data.image;
             }
             else{
               var user_image = '';
             }
 
-            result.push({cash_prize : data.cash_prize + constants.CURRENCY , position : data.position ,
+            result.push({cash_prize : data.cash_prize + CONSTANTS.DATABASE.CURRENCY , position : data.position ,
                          winning_code : data.winning_code, jumbled_code : data.jumbled_code , is_available : is_available ,
                          user_name : user_name , user_image : user_image});
           }
