@@ -35,15 +35,15 @@ router.get('/events', auth, eventController.showEvents);
 
 router.get('/delete_events',auth,eventController.deleteEvents);
 
-router.get('/add_events',auth,eventController.showAddEvents);
-
 router.post('/add_events',[auth,upload.array()],eventController.addEvents);
 
-router.get('/edit_events/:id',auth,eventController.showEditEvent);
+router.get('/events/:id',auth,eventController.showEditEvent);
 
 router.post('/edit_events/:id',[auth,upload.array()],eventController.editEvent);
 
 router.get('/event_desc/:id',auth,eventController.eventDesc);
+
+router.get('/restaurants',auth,eventController.getRestaurantList);
 
 router.get('/change_password',auth,homeController.showChangepassword);
 

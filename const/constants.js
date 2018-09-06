@@ -10,16 +10,24 @@ module.exports = {
     STATUS_MSG: {
         
         SUCCESS: {
+            
             LOGIN_SUCCESS: {
                 code: 200,
                 status: 'SUCCESS',
                 type: 'LOGIN_SUCCESS',
                 message: 'Logged in successfully'
+            },
+
+            EVENT_DELETED: {
+                code: 200,
+                status: 'SUCCESS',
+                type: 'EVENT_DELETED',
+                message: 'Event deleted successfully'
             }
         },
 
         ERROR: {
-            /** 403 ERRORS */
+            /** 403 ERRORS Forbidden*/
             UNAUTHORIZED_ACCESS: {
                 code: 403,
                 status: 'ERROR',
@@ -28,7 +36,10 @@ module.exports = {
             },
             /** 403 END */
 
-            /** 400 ERRORS */
+            /** 401 ERRORS Unauthorized */
+            /** 401 END */
+
+            /** 400 ERRORS Bad Request*/
             INCORRECT_PASSWORD: {
                 code: 400,
                 status: 'ERROR',
@@ -42,6 +53,13 @@ module.exports = {
                 type: 'INVALID_CREDENTIALS',
                 message: 'Invalid credentials'
             },
+
+            INVALID_EVENT_ID: {
+                code: 400,
+                status: 'ERROR',
+                type: 'INVALID_EVENT_ID',
+                message: 'Invalid event id'
+            }
             /** 400 END */
         }
     }

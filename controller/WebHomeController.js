@@ -32,9 +32,6 @@ var postLogin = (req , res , next) => {
      var errors = req.validationErrors();
      if(errors){
        console.log(errors);
-      //  res.render('login',{
-      //    errors : errors
-      //  });
       UniversalFunction.sendError(res, errors);
      }
      else{
@@ -62,7 +59,11 @@ var postLogin = (req , res , next) => {
     }
   };
 
-
+/**
+ * @description get dashboard data
+ * @param {*} req 
+ * @param {*} res 
+ */
 var showDashboard = (req, res) => {
   connection.query('Select COUNT(*) as count from events')
   .then((results) => {

@@ -3,48 +3,87 @@ var mysql = require('mysql');
 var serialize = require('node-serialize');
 
 var connection = require('../connect');
+const UniversalFunction = require('../utils/universalFunctions');
+const CONSTANTS = require('../const/constants');
 
+/**
+ * @description get event list
+ * @param {*} req 
+ * @param {*} res 
+ */
 var showEvents = (req, res) => {
   connection.query('Select events.name as event_name,events.id,events.event_start_time,events.event_end_time,events.description,restaurant.name,events.cash_prize,events.winning_code from events left join restaurant on events.restaurant_id = restaurant.id')
   .then((results) => {
-    res.render('events', {events : results});
+    UniversalFunction.sendSuccess(res, {events : results});
+    //res.render('events', {events : results});
   })
   .catch((err) => {
     console.log(err);
+    UniversalFunction.sendError(res, err);
   });
 }
 
-var showAddEvents = (req, res) => {
+/**
+ * @description returns list of restaurants
+ * @param {*} req 
+ * @param {*} res 
+ */
+var getRestaurantList = (req, res) => {
   connection.query('SELECT * from restaurant')
   .then((results) => {
-      res.render('add_events' , {companies : results});
+      return UniversalFunction.sendSuccess(res, results);
+      //res.render('add_events' , {companies : results});
   })
   .catch((err) => {
       console.log(err);
+      return UniversalFunction.sendError(res, err);
   })
 }
 
+/**
+ * @description deletes event by id in query param
+ * @param {*} req 
+ * @param {*} res 
+ */
 var deleteEvents = (req, res) => {
+  req.assert('event_id','Event id required').notEmpty();
+  var errors = req.validationErrors();
+  if(errors){
+    console.log(errors);
+    return UniversalFunction.sendError(res, errors);
+  }
   var event_id = req.query.event_id;
-  connection.query(mysql.format('Delete from events where id = ?',[event_id]))
-  .then((results) => {
-    connection.query(mysql.format('Delete from winners where event_id = ?' , [event_id]))
+  connection.query(mysql.format('Select * from events where id = ?', [event_id]))
+  .then((event) => {
+    if(event.length === 0)
+      return UniversalFunction.sendError(res, CONSTANTS.STATUS_MSG.ERROR.INVALID_EVENT_ID);
+    connection.query(mysql.format('Delete from events where id = ?',[event_id]))
     .then((results) => {
-      connection.query(mysql.format('Delete from events_restaurant where event_id = ?', [event_id]))
+      connection.query(mysql.format('Delete from winners where event_id = ?' , [event_id]))
       .then((results) => {
-            res.redirect('/admin/events');
+        connection.query(mysql.format('Delete from events_restaurant where event_id = ?', [event_id]))
+        .then((results) => {
+              UniversalFunction.sendSuccess(res, CONSTANTS.STATUS_MSG.SUCCESS.EVENT_DELETED);
+        })
       })
-    })
+    });
   })
   .catch((err) => {
     console.log(err);
+    UniversalFunction.sendError(res, err);
   });
 }
 
+/**
+ * @description adds event
+ * @param {*} req 
+ * @param {*} res 
+ */
 var addEvents = (req, res) => {
   console.log(req.body);
 var event_name = req.body.event_name;
-var restaurant = req.body.restaurant_name;
+// var restaurant = req.body.restaurant_name;
+var restaurant = req.body.restaurants; // an array of restaurant ids
 var description = req.body.description;
 var event_start_time = moment(req.body.event_start_time,'MM/DD/YYYY HH:mm A').format('YYYY-MM-DD HH:mm:ss');
 var event_end_time = moment(req.body.event_end_time,'MM/DD/YYYY HH:mm A').format('YYYY-MM-DD HH:mm:ss');
@@ -90,16 +129,25 @@ connection.query("Insert into events(name,description,cash_prize,event_start_tim
    var j_code = req.body[jumbled_code];
 
    connection.query("Insert into winners(event_id,position,cash_prize,winning_code,jumbled_code) values('"+event_id+"','"+i+"','"+cash+"','"+code+"','"+j_code+"')")
-}
+  }
+  return Promise.resolve(event_id);
 })
-.then(() => {
-  showEvents(req,res);
+.then((event_id) => {
+  return UniversalFunction.sendSuccess(res, event_id);
+  //showEvents(req,res);
 })
 .catch((err) => {
   console.log(err);
+  UniversalFunction.sendError(res, err);
 });
 }
 
+/**
+ * @description Get event details
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} err 
+ */
 var showEditEvent = (req, res ,err) => {
   var error = {};
   var id = req.params.id;
@@ -110,18 +158,26 @@ var showEditEvent = (req, res ,err) => {
     .then((restaurant) => {
          getWinners(req.params.id , (response) => {
              getRestaurants(req.params.id , (rest_data) => {
-                 res.render('edit_events',{events : results, event_restaurants : rest_data ,
-                                           restaurants : restaurant,winners : response, errors :error});
+                return UniversalFunction.sendSuccess(res, { 
+                  events : results,
+                  event_restaurants : rest_data,
+                  restaurants : restaurant,
+                  winners : response 
+                });
+                //  res.render('edit_events',{events : results, event_restaurants : rest_data ,
+                //                            restaurants : restaurant,winners : response, errors :error});
              });
             });
 
     })
     .catch((err) => {
       console.log(err);
+      return UniversalFunction.sendError(res, err);
     })
   })
   .catch((err) => {
     console.log(err);
+    return UniversalFunction.sendError(res, err);
   });
 }
 
@@ -216,7 +272,7 @@ var getRestaurants = (event_id ,callback) => {
 
 module.exports = {
   showEvents,
-  showAddEvents,
+  getRestaurantList,
   addEvents,
   showEditEvent,
   editEvent,
