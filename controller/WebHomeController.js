@@ -76,55 +76,66 @@ var showDashboard = (req, res) => {
   })
 }
 
+/*
 var showChangepassword = (req, res) => {
   var error = {};
   var success = {};
   res.render('change_password' , {errors : error , success : success});
 }
+*/
 
+/**
+ * @description Change admin password
+ * @param {*} req 
+ * @param {*} res 
+ */
 var changepassword = (req, res) => {
-var new_password = req.body.new_password;
-var old_password = req.body.password;
-var confirm_password = req.body.confirm_password;
+  var old_password = req.body.password;
+  
+  var new_password = req.body.new_password;
+  var confirm_password = req.body.confirm_password;
 
-connection.query(mysql.format("Select * from admin where email = 'admin@shayer.com' and password = ?" , [old_password]))
-.then((results) => {
-  var error = {};
-  var success = {};
-  if(results.length >= 1){
-    if(new_password !== confirm_password){
-      error.msg = 'Both passwords should be same';
-      res.render('change_password',{errors : error , success : success});
+  connection.query(mysql.format("Select * from admin where email = 'admin@shayer.com' and password = ?" , [old_password]))
+  .then((results) => {
+    
+    if(results.length >= 1){
+      if(new_password !== confirm_password) {
+        return UniversalFunction.sendError(res, CONSTANTS.STATUS_MSG.ERROR.PASSWORD_MISMATCH);
+      }
+      else{
+        connection.query(mysql.format("Update admin set password = ? where email = 'admin@shayer.com'" , [new_password]))
+        .then((results) => {
+          return UniversalFunction.sendSuccess(res, CONSTANTS.STATUS_MSG.SUCCESS.PASSWORD_UPDATED);
+        })
+        .catch((err) => {
+          console.log(err);
+          return UniversalFunction.sendError(res, err);
+        })
+      }
     }
     else{
-      connection.query(mysql.format("Update admin set password = ? where email = 'admin@shayer.com'" , [new_password]))
-      .then((results) => {
-        success.msg = 'Password changed successfully';
-        res.render('change_password', {success : success , errors : error});
-      })
-      .catch((err) => {
-        console.log(err);
-      })
+      return UniversalFunction.sendError(res, CONSTANTS.STATUS_MSG.ERROR.INCORRECT_PASSWORD);
     }
-  }
-  else{
-    error.msg = 'Incorrect password';
-    res.render('change_password', {errors : error , success: success});
-  }
-})
-.catch((err) => {
-  console.log(err);
-});
+  })
+  .catch((err) => {
+    console.log(err);
+    return UniversalFunction.sendError(res, err);
+  });
 }
 
+/**
+ * @description Logout admin
+ * @param {*} req 
+ * @param {*} res 
+ */
 var logout = (req, res) => {
   req.session.destroy();
-  res.redirect('/admin/login');
+  return UniversalFunction.sendSuccess(res, CONSTANTS.STATUS_MSG.SUCCESS.LOGOUT_SUCCESS);
+  // res.redirect('/admin/login');
 }
 
 module.exports = {
   showDashboard,
-  showChangepassword,
   postLogin,
   logout,
   changepassword

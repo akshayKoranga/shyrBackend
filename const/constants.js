@@ -10,7 +10,21 @@ module.exports = {
     STATUS_MSG: {
         
         SUCCESS: {
-            
+
+            EVENT_DELETED: {
+                code: 200,
+                status: 'SUCCESS',
+                type: 'EVENT_DELETED',
+                message: 'Event deleted successfully'
+            },
+
+            EVENT_UPDATED: {
+                code: 200,
+                status: 'SUCCESS',
+                type: 'EVENT_UPDATED',
+                message: 'Event updated successfully'
+            },
+
             LOGIN_SUCCESS: {
                 code: 200,
                 status: 'SUCCESS',
@@ -18,11 +32,25 @@ module.exports = {
                 message: 'Logged in successfully'
             },
 
-            EVENT_DELETED: {
+            LOGOUT_SUCCESS: {
                 code: 200,
                 status: 'SUCCESS',
-                type: 'EVENT_DELETED',
-                message: 'Event deleted successfully'
+                type: 'LOGOUT_SUCCESS',
+                message: 'Logged out successfully'
+            },
+
+            PASSWORD_UPDATED: {
+                code: 200,
+                status: 'SUCCESS',
+                type: 'PASSWORD_UPDATED',
+                message: 'Password updated successfully'
+            },
+
+            RESTAURANT_UPDATED: {
+                code: 200,
+                status: 'SUCCESS',
+                type: 'RESTAURANT_UPDATED',
+                message: 'Restaurant updated successfully'
             }
         },
 
@@ -59,6 +87,13 @@ module.exports = {
                 status: 'ERROR',
                 type: 'INVALID_EVENT_ID',
                 message: 'Invalid event id'
+            },
+
+            PASSWORD_MISMATCH: {
+                code: 400,
+                status: 'ERROR',
+                type: 'PASSWORD_MISMATCH',
+                message: 'Password mismatch'
             }
             /** 400 END */
         }
