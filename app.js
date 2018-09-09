@@ -45,7 +45,9 @@ var middleware = [
 ];
 
 app.use(middleware);
-app.use(cors());
+app.use(cors({
+  credentials: true
+}));
 
 let options = {
   explorer: true,
