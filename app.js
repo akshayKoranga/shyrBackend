@@ -8,6 +8,7 @@ var randomString = require('randomstring');
 var fileUpload = require('express-fileupload');
 var moment = require('moment');
 var socketIO = require('socket.io');
+var cors = require('cors');
 var processImage = require('express-processimage');
 const swaggerUi = require('swagger-ui-express');
 // var cookieSession = require('cookie-session')
@@ -44,6 +45,7 @@ var middleware = [
 ];
 
 app.use(middleware);
+app.use(cors());
 
 let options = {
   explorer: true,
