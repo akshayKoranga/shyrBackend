@@ -35,11 +35,11 @@ var middleware = [
   }),
   bodyParser.json(),
   validator(),
-  session({
-    secret : randomString.generate(10),
-    resave : false,
-    saveUninitialized: false
-  }),
+  // session({
+  //   secret : randomString.generate(10),
+  //   resave : false,
+  //   saveUninitialized: false
+  // }),
   // fileUpload(),
   processImage({root: 'public'})
 ];

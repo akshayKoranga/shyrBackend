@@ -2,6 +2,7 @@ const {check ,validationResult} = require('express-validator/check'); //validato
 const {matchedData} = require('express-validator/filter'); //sanitizer
 var md5 = require('md5');
 var mysql = require('mysql');
+const randomString = require('random-string');
 
 var connection = require('../connect');
 const UniversalFunction = require('../utils/universalFunctions');
@@ -20,6 +21,20 @@ res.render('login', {errors : {}}, (err, html) =>{
 }
 */
 
+const getAccessToken = () => {
+  return new Promise((resolve, reject) => {
+    const token = randomString({length: 50});
+    connection.query(mysql.format("Update admin set token = ? where email = 'admin@shayer.com'" , [token]))
+    .then((results) => {
+      resolve(token);
+    })
+    .catch((err) => {
+      console.log(err);
+      reject('Failed to generate token');
+    });
+  });
+}
+
 /**
  * @description handler for admin login
  * @param {*} req 
@@ -32,7 +47,7 @@ var postLogin = (req , res , next) => {
      var errors = req.validationErrors();
      if(errors){
        console.log(errors);
-      UniversalFunction.sendError(res, errors);
+       UniversalFunction.sendError(res, errors);
      }
      else{
       var email = req.body.email;
@@ -41,9 +56,15 @@ var postLogin = (req , res , next) => {
       .then((results) => {
         if(results.length > 0){
           if(results[0].password == password){
-            req.session.email = email;
-            req.session.admin = true;
-            UniversalFunction.sendSuccess(res, CONSTANTS.STATUS_MSG.SUCCESS.LOGIN_SUCCESS);
+            // req.session.email = email;
+            // req.session.admin = true;
+            getAccessToken()
+            .then((token) => {
+              return UniversalFunction.sendSuccess(res, {token: token});
+            })
+            .catch((error) => {
+              return UniversalFunction.sendError(res, error);
+            });
           }
           else{
             UniversalFunction.sendError(res, CONSTANTS.STATUS_MSG.ERROR.INCORRECT_PASSWORD);
@@ -129,8 +150,15 @@ var changepassword = (req, res) => {
  * @param {*} res 
  */
 var logout = (req, res) => {
-  req.session.destroy();
-  return UniversalFunction.sendSuccess(res, CONSTANTS.STATUS_MSG.SUCCESS.LOGOUT_SUCCESS);
+  //req.session.destroy();
+  connection.query(mysql.format("Update admin set token = ? where email = 'admin@shayer.com'" , [null]))
+  .then((results) => {
+    return UniversalFunction.sendSuccess(res, CONSTANTS.STATUS_MSG.SUCCESS.LOGOUT_SUCCESS);
+  })
+  .catch((err) => {
+    console.log(err);
+    return UniversalFunction.sendError(res, err);
+  });
   // res.redirect('/admin/login');
 }
 

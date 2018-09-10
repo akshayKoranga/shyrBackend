@@ -29,6 +29,7 @@
     "node-serialize": "0.0.4",
     "nodemailer": "^4.6.5",
     "pm2": "^2.10.4",
+    "random-string": "^0.2.0",
     "randomstring": "^1.1.5",
     "sharp": "^0.20.3",
     "swagger-ui-dist": "^3.18.2"

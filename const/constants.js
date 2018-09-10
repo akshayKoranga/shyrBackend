@@ -65,6 +65,12 @@ module.exports = {
             /** 403 END */
 
             /** 401 ERRORS Unauthorized */
+            INVALID_TOKEN: {
+                code: 401,
+                status: 'ERROR',
+                type: 'INVALID_TOKEN',
+                message: 'Invalid token'
+            },
             /** 401 END */
 
             /** 400 ERRORS Bad Request*/
