@@ -47,7 +47,7 @@ var getRestaurantList = (req, res) => {
  */
 const addRestaurant = (req, res) => {
   const resturant_name = req.body.name.trim();
-  connection.query("Insert into restaurant(name,) values('"+resturant_name+"')")
+  connection.query("Insert into restaurant(name) values('"+resturant_name+"')")
   .then((restaurant) => {
     var restaurant_id = restaurant.insertId;
     return UniversalFunction.sendSuccess(res, restaurant_id);
@@ -65,7 +65,7 @@ const addRestaurant = (req, res) => {
  */
 var getRestaurantDetails = (req, res) => {
   const restaurant_id = req.params.id;
-  connection.query(sq.format('SELECT * from restaurant where id = ?', [restaurant_id]))
+  connection.query(mysql.format('SELECT * from restaurant where id = ?', [restaurant_id]))
   .then((results) => {
       return UniversalFunction.sendSuccess(res, results);
       //res.render('add_events' , {companies : results});
@@ -84,8 +84,8 @@ var getRestaurantDetails = (req, res) => {
 const editRestaurant = (req, res) => {
   const restaurant_id = req.params.id;
   const resturant_name = req.body.name.trim();
-  const updatedAt = moment(Date.now(), 'MM/DD/YYYY HH:mm A').format('YYYY-MM-DD HH:mm:ss');
-  connection.query(sql.format("Update restaurant set name = ?, updated_at = ? where id = ?", [resturant_name, updatedAt, restaurant_id]))
+  const updatedAt = moment(new Date(), 'MM/DD/YYYY HH:mm A').format('YYYY-MM-DD HH:mm:ss');
+  connection.query(mysql.format("Update restaurant set name = ?, updated_at = ? where id = ?", [resturant_name, updatedAt, restaurant_id]))
   .then((restaurant) => {
     return UniversalFunction.sendSuccess(res, CONSTANTS.STATUS_MSG.SUCCESS.RESTAURANT_UPDATED);
   })
