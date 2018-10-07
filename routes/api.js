@@ -31,4 +31,10 @@ router.get('/hints',auth.appAuth,eventController.showHints);
 
 router.get('/assets/img/:folder/:image/:w?/:h?',homeController.imageProcess);
 
+
+/** GAME ROUTES */
+router.get('/game/:level', auth.appAuth, gameController.getNewGame);
+router.post('/game/:level/:id', auth.appAuth, gameController.updateResult);
+/** END */
+
 module.exports = router;

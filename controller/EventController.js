@@ -12,7 +12,7 @@ const CONSTANTS = require('../const/constants');
  * @param {*} res 
  */
 var showEvents = (req, res) => {
-  connection.query('Select events.name as event_name,events.id,events.event_start_time,events.event_end_time,events.description,restaurant.name,events.cash_prize,events.winning_code from events left join restaurant on events.restaurant_id = restaurant.id')
+  connection.query('Select events.name as event_name,events.id,events.event_start_time,events.event_end_time,events.description,events.cash_prize from events')
   .then((results) => {
     UniversalFunction.sendSuccess(res, {events : results});
     //res.render('events', {events : results});

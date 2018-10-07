@@ -95,6 +95,13 @@ module.exports = {
                 message: 'Invalid event id'
             },
 
+            INVALID_GAME_LEVEL: {
+                code: 400,
+                status: 'ERROR',
+                type: 'INVALID_GAME_LEVEL',
+                message: 'Invalid game level'
+            },
+
             PASSWORD_MISMATCH: {
                 code: 400,
                 status: 'ERROR',
