@@ -213,7 +213,7 @@ var forgotPassword = (req, res) => {
         var token = randomString.generate(10);
         connection.query("Insert into token(user_id,token) values('"+results[0].id+"' , '"+token+"')")
       .then((results) => {
-        var recoveryLink = 'http://52.202.52.164:3000/api/resetPassword/' + token;
+        var recoveryLink = 'http://18.224.152.176:3000/api/resetPassword/' + token;
         var email = sendMail.sendEmail(req.body.email, recoveryLink);
         //connection.query(mysql.format('Delete from token where user_id = ?' , [results[0].id]))
         var success = {};
@@ -269,7 +269,7 @@ else{
 var imageProcess = (req, res ,next) => {
   var folder = req.params.folder;
   var image = req.params.image;
-  var url = 'http://52.202.52.164:3000/public/assets/img/' + folder + '/' + image;
+  var url = 'http://18.224.152.176:3000/public/assets/img/' + folder + '/' + image;
   if(req.params.w){
     var width = parseInt(req.params.w, 10);
   }
