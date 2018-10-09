@@ -26,7 +26,7 @@ var showEvents = (req, res) => {
   var dateTime = new Date();
   dateTime = moment(dateTime).format("YYYY-MM-DD HH:mm:ss");
 
-   var sql = 'Select events.id,events.event_time,events.name as event_name,events.cash_prize,events.id,events.winning_code,events.description,events.restaurant_id from events order by events.id DESC limit ? , ?';
+   var sql = 'Select events.id,events.event_time,events.name as event_name,events.cash_prize,events.id,events.description from events order by events.id DESC limit ? , ?';
 
   connection.query(mysql.format(sql , [skip , limit]))
   .then((results) => {

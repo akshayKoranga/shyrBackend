@@ -11,6 +11,11 @@ const gameManager = require('../../lib/gameManager');
 var {checkCode} = require('./../../utils/codes');
 
 const getNewGame = (req, res) => {
+  try {
+    req.params.level = parseInt(req.params.level);
+  }catch (error) {
+    req.params.level = -1;
+  }
   let game;
   switch(req.params.level) {
     case 1:
@@ -23,9 +28,11 @@ const getNewGame = (req, res) => {
       game = gameManager.levelThreeGame();
     break;
     default:
-      return UniversalFunction.sendError(res, INVALID_GAME_LEVEL);
+      return UniversalFunction.sendError(res, CONSTANTS.STATUS_MSG.ERROR.INVALID_GAME_LEVEL);
     break;
   }
+
+  return  UniversalFunction.sendSuccess(res, game);
 };
 
 const updateResult = (req, res) => {
