@@ -12,12 +12,12 @@ var {checkCode} = require('./../../utils/codes');
 
 const getNewGame = (req, res) => {
   try {
-    req.params.level = parseInt(req.params.level);
+    req.query.level = parseInt(req.query.level);
   }catch (error) {
-    req.params.level = -1;
+    req.query.level = -1;
   }
   let game;
-  switch(req.params.level) {
+  switch(req.query.level) {
     case 1:
       game = gameManager.levelOneGame();
     break;

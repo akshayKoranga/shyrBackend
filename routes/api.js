@@ -33,7 +33,7 @@ router.get('/assets/img/:folder/:image/:w?/:h?',homeController.imageProcess);
 
 
 /** GAME ROUTES */
-router.get('/game/:level', auth.appAuth, gameController.getNewGame);
+router.get('/game', auth.appAuth, gameController.getNewGame);
 router.post('/game/:level/:id', auth.appAuth, gameController.updateResult);
 /** END */
 
