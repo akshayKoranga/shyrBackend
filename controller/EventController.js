@@ -179,7 +179,7 @@ var addEvents = (req, res) => {
     var winning_code = 'winning_code' + i;
     var jumbled_code = 'jumbled_code' + i;
 
-    var cash = req.body[winner];
+    var cash = req.body[winner] || 0;
     var code = req.body[winning_code];
     var j_code = req.body[jumbled_code];
 
@@ -276,7 +276,7 @@ var editEvent = (req, res) => {
      var winning_code = 'winning_code' + i;
      var jumbled_code = 'jumbled_code' + i;
 
-     var cash = req.body[winner];
+     var cash = req.body[winner] || 0;
      var code = req.body[winning_code];
      var j_code = req.body[jumbled_code];
 

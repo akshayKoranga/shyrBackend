@@ -197,8 +197,55 @@
    </div>
 
    <div class="panel panel-default">
+           <div class="panel-heading" data-toggle="collapse" data-target="#upcoming-events">
+               <h4>4.Upcoming Events</h4>
+           </div>
+
+        <div class="panel-body collapse" id="upcoming-events">
+            <code>
+                <dl class="dl-horizontal">
+                    <dt>url:</dt>
+                    <dd>http://18.224.152.176:3000/api/upcoming-events</dd>
+                    <dt>Request:</dt>
+                    <dd>GET</dd>
+                </dl>
+            </code>
+            <form target="_new" class="form-horizontal" action="/api/upcoming-events"
+                method="get">
+
+             <div class="form-group">
+                 <label class="col-sm-4 control-label">session_id </label>
+                 <div class="col-sm-8">
+                     <input class="form-control" type="text" name="session_id">
+                 </div>
+                 <label class="col-sm-4 control-label">status </label>
+                 <div class="col-sm-8">
+                     <input class="form-control" type="text" name="status">
+                 </div>
+                 <label class="col-sm-4 control-label">limit (default=50)</label>
+                 <div class="col-sm-8">
+                     <input class="form-control" type="text" name="limit">
+                 </div>
+                 <label class="col-sm-4 control-label">page (default=1)</label>
+                 <div class="col-sm-8">
+                     <input class="form-control" type="text" name="page">
+                 </div>
+                 <label class="col-sm-4 control-label">locale</label>
+                 <div class="col-sm-8">
+                     <input class="form-control" type="text" name="locale">
+                 </div>
+                    <div>&nbsp;</div>
+                    <div class="col-sm-8 col-sm-offset-2">
+                        <input class="btn btn-success" type="submit">
+                    </div>
+                </div>
+            </form>
+        </div>
+   </div>
+
+   <div class="panel panel-default">
           <div class="panel-heading" data-toggle="collapse" data-target="#show-hints">
-              <h4>4.Show Hints</h4>
+              <h4>5.Show Hints</h4>
           </div>
 
        <div class="panel-body collapse" id="show-hints">
@@ -233,7 +280,7 @@
 
   <div class="panel panel-default">
          <div class="panel-heading" data-toggle="collapse" data-target="#change-password">
-             <h4>5.Change Password</h4>
+             <h4>6.Change Password</h4>
          </div>
 
       <div class="panel-body collapse" id="change-password">
@@ -273,7 +320,7 @@
 <div class="panel panel-default">
     <div class="panel-heading" data-toggle="collapse"
         data-target="#user-forgot-password">
-        <h4>6. User Forgot Password</h4>
+        <h4>7. User Forgot Password</h4>
     </div>
     <div class="panel-body collapse" id="user-forgot-password">
         <code>
@@ -306,7 +353,7 @@
 
 <div class="panel panel-default">
     <div class="panel-heading" data-toggle="collapse" data-target="#get-game">
-        <h4>7.Get game</h4>
+        <h4>8.Get game</h4>
     </div>
 
  <div class="panel-body collapse" id="get-game">
@@ -322,9 +369,9 @@
          method="get">
 
       <div class="form-group">
-            <label class="col-sm-4 control-label">level</label>
+            <label class="col-sm-4 control-label">event_id</label>
             <div class="col-sm-8">
-                <input class="form-control" type="text" name="level">
+                <input class="form-control" type="text" name="event_id">
             </div>
             <label class="col-sm-4 control-label">session_id </label>
             <div class="col-sm-8">
@@ -338,6 +385,45 @@
      </form>
  </div>
 </div>
+
+<div class="panel panel-default">
+        <div class="panel-heading" data-toggle="collapse" data-target="#update-game">
+            <h4>9.Update game</h4>
+        </div>
+    
+     <div class="panel-body collapse" id="update-game">
+         <code>
+             <dl class="dl-horizontal">
+                 <dt>url:</dt>
+                 <dd>http://18.224.152.176:3000/api/game</dd>
+                 <dt>Request:</dt>
+                 <dd>POST</dd>
+             </dl>
+         </code>
+         <form target="_new" class="form-horizontal" action="/api/game"
+             method="post">
+    
+          <div class="form-group">
+                <label class="col-sm-4 control-label">id</label>
+                <div class="col-sm-8">
+                    <input class="form-control" type="text" name="id" placeholder="game id">
+                </div>
+                <label class="col-sm-4 control-label">game play time</label>
+                <div class="col-sm-8">
+                    <input class="form-control" type="text" name="game_play_time" placeholder="time took to finish">
+                </div>
+                <label class="col-sm-4 control-label">session_id </label>
+                <div class="col-sm-8">
+                    <input class="form-control" type="text" name="session_id">
+                </div>
+                 <div>&nbsp;</div>
+                 <div class="col-sm-8 col-sm-offset-2">
+                     <input class="btn btn-success" type="submit">
+                 </div>
+             </div>
+         </form>
+     </div>
+    </div>
 
     <script type="text/javascript" src="/assets/js/jquery-2.1.1.js"></script>
     <script type="text/javascript" src="/assets/js/bootstrap.min.js"></script>

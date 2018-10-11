@@ -25,6 +25,13 @@ module.exports = {
                 message: 'Event updated successfully'
             },
 
+            GAME_FINISHED: {
+                code: 200,
+                status: 'SUCCESS',
+                type: 'GAME_FINISHED',
+                message: 'Game completed successfully'
+            },
+
             LOGIN_SUCCESS: {
                 code: 200,
                 status: 'SUCCESS',
@@ -74,6 +81,13 @@ module.exports = {
             /** 401 END */
 
             /** 400 ERRORS Bad Request*/
+            GAME_ALREADY_COMPLETED: {
+                code: 400,
+                status: 'ERROR',
+                type: 'GAME_ALREADY_COMPLETED',
+                message: 'Already completed the game'
+            },
+
             INCORRECT_PASSWORD: {
                 code: 400,
                 status: 'ERROR',
@@ -93,6 +107,13 @@ module.exports = {
                 status: 'ERROR',
                 type: 'INVALID_EVENT_ID',
                 message: 'Invalid event id'
+            },
+
+            INVALID_GAME_ID: {
+                code: 400,
+                status: 'ERROR',
+                type: 'INVALID_GAME_ID',
+                message: 'Invalid game id'
             },
 
             INVALID_GAME_LEVEL: {

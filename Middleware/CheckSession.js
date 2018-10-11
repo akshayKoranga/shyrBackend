@@ -23,6 +23,7 @@ var appAuth = (req, res , next) => {
       res.status(403).json(error);
     }
     else{
+      req.user_id = results[0].user_id;
       next();
     }
   })
