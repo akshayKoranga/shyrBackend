@@ -32,6 +32,13 @@ module.exports = {
                 message: 'Game completed successfully'
             },
 
+            GAME_LOST: {
+                code: 200,
+                status: 'SUCCESS',
+                type: 'GAME_LOST',
+                message: 'You lost the game. Better luck next time!'
+            },
+
             LOGIN_SUCCESS: {
                 code: 200,
                 status: 'SUCCESS',
@@ -88,6 +95,13 @@ module.exports = {
                 message: 'Already completed the game'
             },
 
+            GAME_ALREADY_LOST: {
+                code: 400,
+                status: 'ERROR',
+                type: 'GAME_ALREADY_LOST',
+                message: 'Already lost the game'
+            },
+
             INCORRECT_PASSWORD: {
                 code: 400,
                 status: 'ERROR',
@@ -121,6 +135,13 @@ module.exports = {
                 status: 'ERROR',
                 type: 'INVALID_GAME_LEVEL',
                 message: 'Invalid game level'
+            },
+
+            INVALID_GAME_PLAY_TIME: {
+                code: 400,
+                status: 'ERROR',
+                type: 'INVALID_GAME_PLAY_TIME',
+                message: 'Invalid game play time'
             },
 
             PASSWORD_MISMATCH: {

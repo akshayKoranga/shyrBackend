@@ -23,7 +23,10 @@ const getGame = (req, res) => {
       if (oldGame && oldGame.length > 0) {
         oldGame = oldGame[0];
         
-        if (oldGame.isComplete == 0) {
+        if(oldGame.game_lost === 1) {
+          return UniversalFunction.sendError(res, CONSTANTS.STATUS_MSG.ERROR.GAME_ALREADY_COMPLETED);
+        }
+        else if (oldGame.isComplete == 0) {
           // current level in progress, return a game of same level
           gameLevel = oldGame.level;
         }else if (oldGame.level < 3) {
@@ -109,9 +112,20 @@ const updateResult = (req, res) => {
           oldGame.level_three_time = req.body.game_play_time;
         }
 
+        if(oldGame.game_lost === 1) {
+          return UniversalFunction.sendError(res, CONSTANTS.STATUS_MSG.ERROR.GAME_ALREADY_LOST);
+        }
+        if(req.body.game_lost && req.body.game_lost != '' && !isNaN(req.body.game_lost)) {
+          req.body.game_lost = parseInt(req.body.game_lost);
+          oldGame.game_lost = req.body.game_lost > 1 ? 1 : req.body.game_lost;
+        }
+
         // update
-        connection.query(mysql.format("Update gameplay set isComplete = ?,  level_one_time = ?, level_two_time = ?, level_three_time = ? where id = ?", [1, oldGame.level_one_time, oldGame.level_two_time, oldGame.level_three_time, oldGame.id]))
+        connection.query(mysql.format("Update gameplay set isComplete = ?, game_lost = ?, level_one_time = ?, level_two_time = ?, level_three_time = ? where id = ?", [1, oldGame.game_lost, oldGame.level_one_time, oldGame.level_two_time, oldGame.level_three_time, oldGame.id]))
         .then((result) => {
+          if(oldGame.game_lost === 1) {
+            return UniversalFunction.sendSuccess(res, CONSTANTS.STATUS_MSG.SUCCESS.GAME_LOST);
+          }
           if (oldGame.level === 3 ) {
             let total_play_time = oldGame.level_one_time + oldGame.level_two_time + oldGame.level_three_time;
             // insert in leader board
@@ -131,6 +145,8 @@ const updateResult = (req, res) => {
         .catch((error) => {
           return UniversalFunction.sendError(res, error);
         });
+      }else {
+        return UniversalFunction.sendError(res, CONSTANTS.STATUS_MSG.ERROR.INVALID_GAME_PLAY_TIME);
       }
     }else {
       return UniversalFunction.sendError(res, CONSTANTS.STATUS_MSG.ERROR.INVALID_GAME_ID);
