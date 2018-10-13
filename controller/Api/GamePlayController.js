@@ -157,8 +157,20 @@ const updateResult = (req, res) => {
   });
 };
 
+const getFunGame = (req, res) => {
+  try {
+    let gameLevel = Math.ceil(Math.random() * 10) % 3;
+    gameLevel = gameLevel > 0 ? gameLevel : 1;
+    let game = getNewGame(gameLevel);
+    return UniversalFunction.sendSuccess(res, game);
+  }catch (error) {
+    return UniversalFunction.sendError(res, error);
+  }
+};
+
 module.exports = {
   getGame: getGame,
+  getFunGame: getFunGame,
   updateResult: updateResult
 };
 

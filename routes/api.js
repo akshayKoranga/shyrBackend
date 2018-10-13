@@ -34,6 +34,7 @@ router.get('/assets/img/:folder/:image/:w?/:h?',homeController.imageProcess);
 
 /** GAME ROUTES */
 router.get('/game', auth.appAuth, gameController.getGame);
+router.get('/fun-game', auth.appAuth, gameController.getFunGame);
 router.post('/game', auth.appAuth, gameController.updateResult);
 /** END */
 
