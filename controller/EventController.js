@@ -130,7 +130,7 @@ var deleteEvents = (req, res) => {
 }
 
 /**
- * @description adds event
+ * @description adds event - old handler
  * @param {*} req 
  * @param {*} res 
  */
@@ -149,22 +149,6 @@ var addEvents = (req, res) => {
   // var invoice_date = moment(req.body.invoice_date,'MM/DD/YYYY HH:mm A').format('YYYY-MM-DD HH:mm:ss');
   var cash_prize = req.body.cash_prize;
   var num_winners = req.body.num_winners;
-
-  // restaurant_name.forEach((rest) => {
-  //   restaurant.push(rest);
-  // })
-
-  // var restaurant = serialize.serialize(restaurant_name);
-
-  // var invoice = req.files.invoice;
-  // var invoice_name = event_name + req.files.invoice.name;
-  //
-  // invoice.mv('./public/assets/img/invoice/' + invoice_name ,(err) => {
-  //   if(err){
-  //     console.log(err);
-  //     return;
-  //   }
-  // });
 
   connection.query("Insert into events(name,description,cash_prize,event_start_time,event_end_time,submission_start_time,submission_end_time,num_winners,event_time) values('"+event_name+"','"+description+"','"+cash_prize+"','"+event_start_time+"','"+event_end_time+"','"+submission_start_time+"','"+submission_end_time+"','"+num_winners+"','"+event_time+"')")
   .then((events) => {
@@ -195,6 +179,60 @@ var addEvents = (req, res) => {
     console.log(err);
     UniversalFunction.sendError(res, err);
   });
+}
+
+/**
+ * @description adds event
+ * @param {*} req 
+ * @param {*} res 
+ */
+const addEvent = (req, res) => {
+  let event = {
+    name: req.body.name.trim(),
+    description: req.body.description.trim(),
+    event_start_time: moment(req.body.event_start_time,'MM/DD/YYYY HH:mm A').format('YYYY-MM-DD HH:mm:ss'),
+    event_end_time: moment(req.body.event_end_time,'MM/DD/YYYY HH:mm A').format('YYYY-MM-DD HH:mm:ss'),
+    submission_start_time: moment(req.body.submission_start_time,'MM/DD/YYYY HH:mm A').format('YYYY-MM-DD HH:mm:ss'),
+    submission_end_time: moment(req.body.submission_end_time,'MM/DD/YYYY HH:mm A').format('YYYY-MM-DD HH:mm:ss'),
+    total_prizes: req.body.cash_prize.length
+  };
+
+  // insert event
+  let event_id = 1; // now we have event id
+
+  // now insert associated restaurants
+  req.body.restaurants.forEach((rValue) => {
+    let restaurant = { event_id: event_id, restaurant_id: rValue };
+    // insert associated restaurant details
+  });
+
+  // now insert cash prizes, corresponding to every prize, insert game rules too
+  req.body.cash_prize.forEach((cValue, cIndex) => {
+    let cash_prize = { 
+      event_id: event_id,
+      cash_prize: cValue.cash_prize,
+      num_winners: cValue.num_winners ,
+      sort_order: cIndex + 1
+    };
+    // insert the cash prize
+    let cash_prize_id = 2; // now we have the cash prize id
+    // now insert associated game rules for different levels
+    cValue.game_rules.forEach((gValue, gIndex) => {
+      let game_rule = {
+        event_id: event_id,
+        cash_prize_id: cash_prize_id,
+        level: gValue.level,
+        max_time_to_complete: gValue.time_to_complete,
+        max_attempts: gValue.max_attempts,
+        in_app_purchase: gValue.in_app_purchase,
+        max_attempts_buy: gValue.max_attempts_buy,
+        max_time_buy: gValue.max_time_buy
+      };
+      // insert game rule for given event, cash prize 
+    });
+  });
+
+  UniversalFunction.sendSuccess(res, { event_id: event_id });
 }
 
 /**
@@ -350,7 +388,8 @@ module.exports = {
   addRestaurant,
   getRestaurantDetails,
   editRestaurant,
-  addEvents,
+  addEvents, // old
+  addEvent,
   showEditEvent,
   editEvent,
   eventDesc,
