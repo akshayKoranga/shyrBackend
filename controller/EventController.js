@@ -12,7 +12,7 @@ const CONSTANTS = require('../const/constants');
  * @param {*} res 
  */
 var showEvents = (req, res) => {
-  connection.query('Select events.name as event_name,events.id,events.event_start_time,events.event_end_time,events.description,events.cash_prize from events')
+  connection.query('Select events.name as event_name,events.id,events.event_start_time,events.event_end_time,events.description,events.total_prizes from events')
   .then((results) => {
     UniversalFunction.sendSuccess(res, {events : results});
     //res.render('events', {events : results});
@@ -114,11 +114,14 @@ var deleteEvents = (req, res) => {
       return UniversalFunction.sendError(res, CONSTANTS.STATUS_MSG.ERROR.INVALID_EVENT_ID);
     connection.query(mysql.format('Delete from events where id = ?',[event_id]))
     .then((results) => {
-      connection.query(mysql.format('Delete from winners where event_id = ?' , [event_id]))
+      connection.query(mysql.format('Delete from cash_prize where event_id = ?' , [event_id]))
       .then((results) => {
         connection.query(mysql.format('Delete from events_restaurant where event_id = ?', [event_id]))
         .then((results) => {
-              UniversalFunction.sendSuccess(res, CONSTANTS.STATUS_MSG.SUCCESS.EVENT_DELETED);
+          connection.query(mysql.format('Delete from event_game_rules where event_id = ?' , [event_id]))
+          .then((result) => {
+            UniversalFunction.sendSuccess(res, CONSTANTS.STATUS_MSG.SUCCESS.EVENT_DELETED);
+          });
         })
       })
     });
@@ -186,53 +189,72 @@ var addEvents = (req, res) => {
  * @param {*} req 
  * @param {*} res 
  */
-const addEvent = (req, res) => {
-  let event = {
-    name: req.body.name.trim(),
-    description: req.body.description.trim(),
-    event_start_time: moment(req.body.event_start_time,'MM/DD/YYYY HH:mm A').format('YYYY-MM-DD HH:mm:ss'),
-    event_end_time: moment(req.body.event_end_time,'MM/DD/YYYY HH:mm A').format('YYYY-MM-DD HH:mm:ss'),
-    submission_start_time: moment(req.body.submission_start_time,'MM/DD/YYYY HH:mm A').format('YYYY-MM-DD HH:mm:ss'),
-    submission_end_time: moment(req.body.submission_end_time,'MM/DD/YYYY HH:mm A').format('YYYY-MM-DD HH:mm:ss'),
-    total_prizes: req.body.cash_prize.length
-  };
-
-  // insert event
-  let event_id = 1; // now we have event id
-
-  // now insert associated restaurants
-  req.body.restaurants.forEach((rValue) => {
-    let restaurant = { event_id: event_id, restaurant_id: rValue };
-    // insert associated restaurant details
-  });
-
-  // now insert cash prizes, corresponding to every prize, insert game rules too
-  req.body.cash_prize.forEach((cValue, cIndex) => {
-    let cash_prize = { 
-      event_id: event_id,
-      cash_prize: cValue.cash_prize,
-      num_winners: cValue.num_winners ,
-      sort_order: cIndex + 1
+const addEvent = async (req, res) => {
+  try{
+    let event = {
+      name: req.body.name.trim(),
+      description: req.body.description.trim(),
+      event_start_time: moment(req.body.event_start_time,'MM/DD/YYYY HH:mm').format('YYYY-MM-DD HH:mm:ss'),
+      event_end_time: moment(req.body.event_end_time,'MM/DD/YYYY HH:mm').format('YYYY-MM-DD HH:mm:ss'),
+      submission_start_time: moment(req.body.submission_start_time,'MM/DD/YYYY HH:mm').format('YYYY-MM-DD HH:mm:ss'),
+      submission_end_time: moment(req.body.submission_end_time,'MM/DD/YYYY HH:mm').format('YYYY-MM-DD HH:mm:ss'),
+      total_prizes: req.body.cash_prize.length
     };
-    // insert the cash prize
-    let cash_prize_id = 2; // now we have the cash prize id
-    // now insert associated game rules for different levels
-    cValue.game_rules.forEach((gValue, gIndex) => {
-      let game_rule = {
-        event_id: event_id,
-        cash_prize_id: cash_prize_id,
-        level: gValue.level,
-        max_time_to_complete: gValue.time_to_complete,
-        max_attempts: gValue.max_attempts,
-        in_app_purchase: gValue.in_app_purchase,
-        max_attempts_buy: gValue.max_attempts_buy,
-        max_time_buy: gValue.max_time_buy
-      };
-      // insert game rule for given event, cash prize 
-    });
-  });
 
-  UniversalFunction.sendSuccess(res, { event_id: event_id });
+    let eventResult = await connection.query("Insert into events(name,description,event_start_time,event_end_time,submission_start_time,submission_end_time,total_prizes) values('"+event.name+"','"+event.description+"','"+event.event_start_time+"','"+event.event_end_time+"','"+event.submission_start_time+"','"+event.submission_end_time+"','"+event.total_prizes+"')");
+
+    // insert event
+    let event_id = eventResult.insertId; // now we have event id
+
+    // now insert associated restaurants
+    req.body.restaurants.forEach((rValue) => {
+      let restaurant = { event_id: event_id, restaurant_id: rValue };
+      // insert associated restaurant details
+      connection.query("Insert into events_restaurant(event_id,restaurant_id) values('"+restaurant.event_id+"','"+restaurant.restaurant_id+"')");
+    });
+
+    // now insert cash prizes, corresponding to every prize, insert game rules too
+    let cashPrizeArray = [];
+    req.body.cash_prize.forEach((cValue, cIndex) => {
+      let cash_prize = { 
+        event_id: event_id,
+        cash_prize: cValue.cash_prize,
+        num_winners: cValue.num_winners ,
+        sort_order: cIndex + 1
+      };
+      // insert the cash prize
+      cashPrizeArray.push(connection.query("Insert into cash_prize(event_id,cash_prize,num_winners,sort_order) values('"+cash_prize.event_id+"','"+cash_prize.cash_prize+"','"+cash_prize.num_winners+"','"+cash_prize.sort_order+"')"));
+    });
+
+    let cashPrizeResult = await Promise.all(cashPrizeArray);
+    
+    let gamePlayArray = [];
+    req.body.cash_prize.forEach((cValue, cIndex) => {
+      // now we have the cash prize id
+      let cash_prize_id = cashPrizeResult[cIndex].insertId;
+      // now insert associated game rules for different levels
+      cValue.game_rules.forEach((gValue, gIndex) => {
+        let game_rule = {
+          event_id: event_id,
+          cash_prize_id: cash_prize_id,
+          level: gValue.level,
+          max_time_to_complete: gValue.max_time_to_complete,
+          max_attempts: gValue.max_attempts,
+          in_app_purchase: gValue.in_app_purchase || 0,
+          max_attempts_buy: gValue.max_attempts_buy || 0,
+          max_time_buy: gValue.max_time_buy || 0
+        };
+        // insert game rule for given event, cash prize 
+        gamePlayArray.push(connection.query("Insert into event_game_rules(event_id, cash_prize_id, level, max_time_to_complete, max_attempts, in_app_purchase, max_attempts_buy, max_time_buy) values('"+game_rule.event_id+"','"+cash_prize_id+"','"+game_rule.level+"','"+game_rule.max_time_to_complete+"','"+game_rule.max_attempts+"','"+game_rule.in_app_purchase+"','"+game_rule.max_attempts_buy+"','"+game_rule.max_time_buy+"')"));
+      });
+    });
+
+    let gameRuleResult = await Promise.all(gamePlayArray);
+
+    UniversalFunction.sendSuccess(res, { event_id: event_id });
+  }catch (error) {
+      UniversalFunction.sendError(res, error);
+  }
 }
 
 /**
@@ -245,7 +267,7 @@ var showEditEvent = (req, res ,err) => {
   var error = {};
   var id = req.params.id;
   var company;
-  connection.query(mysql.format('Select events.event_time,events.num_winners,events.name as event_name,events.id,events.event_start_time,events.event_end_time,events.submission_start_time,events.submission_end_time,events.description,events.cash_prize from events where events.id = ?' , [id]))
+  connection.query(mysql.format('Select events.total_prizes, events.name as event_name, events.id, events.event_start_time, events.event_end_time, events.submission_start_time, events.submission_end_time, events.description, events.cash_prize from events where events.id = ?' , [id]))
   .then((results) => {
     connection.query('Select restaurant.id, restaurant.name from restaurant')
     .then((restaurant) => {
