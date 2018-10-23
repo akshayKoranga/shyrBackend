@@ -191,6 +191,8 @@ var addEvents = (req, res) => {
  */
 const addEvent = async (req, res) => {
   try{
+    console.log(`====== Add Event API ======`);
+    console.log(req.body);
     let event = {
       name: req.body.name.trim(),
       description: req.body.description.trim(),
