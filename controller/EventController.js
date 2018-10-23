@@ -267,7 +267,7 @@ var showEditEvent = (req, res ,err) => {
   var error = {};
   var id = req.params.id;
   var company;
-  connection.query(mysql.format('Select events.total_prizes, events.name as event_name, events.id, events.event_start_time, events.event_end_time, events.submission_start_time, events.submission_end_time, events.description, events.cash_prize from events where events.id = ?' , [id]))
+  connection.query(mysql.format('Select events.total_prizes, events.name as event_name, events.id, events.event_start_time, events.event_end_time, events.submission_start_time, events.submission_end_time, events.description from events where events.id = ?' , [id]))
   .then((results) => {
     connection.query('Select restaurant.id, restaurant.name from restaurant')
     .then((restaurant) => {
