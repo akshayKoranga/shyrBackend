@@ -373,6 +373,7 @@ var editEvent = (req, res) => {
  * @param {*} req 
  * @param {*} res 
  */
+/*
 var eventDesc = (req, res) => {
  var event_id = req.params.id;
  connection.query(mysql.format('Select events.id,events.name,events.description,events.event_start_time,events.event_end_time,events.submission_start_time,events.submission_end_time,events.num_winners,restaurant.name as rest_name,restaurant.logo,winners.position,winners.cash_prize,winners.winning_code,winners.jumbled_code from events left join events_restaurant on events_restaurant.event_id = events.id left join restaurant on restaurant.id = events_restaurant.restaurant_id left join winners on winners.event_id = events.id where events.id = ?',[event_id]))
@@ -390,6 +391,7 @@ var eventDesc = (req, res) => {
  });
 
 }
+*/
 
 var getWinners = (event_id ,callback) => {
   connection.query(mysql.format('Select * from winners where event_id = ?' ,[event_id]))
@@ -430,6 +432,6 @@ module.exports = {
   addEvent,
   showEditEvent,
   editEvent,
-  eventDesc,
+  //eventDesc,
   deleteEvents
 };

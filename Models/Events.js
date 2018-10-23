@@ -3,17 +3,17 @@ var connection = require('../connect');
 
 const CONSTANTS = require('./../const/constants');
 
-var getResponse = (events,result) => {
+var getResponse = (event) => {
   return new Promise((resolve, reject) => {
-    var event = {};
-    event.id = events.id;
-    event.name = events.event_name;
-    event.cash_prize = events.cash_prize + CONSTANTS.DATABASE.CURRENCY;
-    event.description = events.description;
-    event.game_play_time = events.event_time ? events.event_time*1000 : 0;
-    event.winners = result;
+    //var event = {};
+    //event.id = events.id;
+    //event.name = events.event_name;
+    //event.cash_prize = events.cash_prize + CONSTANTS.DATABASE.CURRENCY;
+    //event.description = events.description;
+    //event.game_play_time = events.event_time ? events.event_time*1000 : 0;
+    //event.winners = result;
 
-    connection.query(mysql.format('Select restaurant.name,restaurant.logo from restaurant left join events_restaurant on restaurant.id = events_restaurant.restaurant_id where event_id = ? limit 3' , [events.id]))
+    connection.query(mysql.format('Select restaurant.name,restaurant.logo from restaurant left join events_restaurant on restaurant.id = events_restaurant.restaurant_id where event_id = ? limit 3' , [event.id]))
     .then((results) => {
       var rest_data = [];
       results.forEach((rest) => {

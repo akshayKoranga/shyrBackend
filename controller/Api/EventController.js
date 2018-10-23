@@ -27,66 +27,27 @@ var showEvents = (req, res) => {
   var dateTime = new Date();
   dateTime = moment(dateTime).format("YYYY-MM-DD HH:mm:ss");
 
-   var sql = 'Select events.id,events.event_time,events.name as event_name,events.cash_prize,events.id,events.description from events order by events.id DESC limit ? , ?';
+  var sql = 'Select events.name as event_name,events.id,events.event_start_time,events.event_end_time,events.description,events.total_prizes from events order by events.id DESC limit ? , ?';
 
   connection.query(mysql.format(sql , [skip , limit]))
-  .then((results) => {
-      var winnersRequest = [], restaurants = [];
-
+  .then(async (results) => {
+      var restaurants = [], cash_prizes = [];
+      // TODO: remove default value of is_available, and update it according to availability of cash prize
       results.forEach((event) => {
-        winnersRequest.push(connection.query(mysql.format('Select cash_prize,winning_code,jumbled_code,position,user_id,name,image from winners left join users on users.id = winners.user_id where event_id = ?' , [event.id])));
+        cash_prizes.push(connection.query(mysql.format('Select id, cash_prize, num_winners, sort_order, 1 as is_available from cash_prize where event_id = ?', [event.id])));
+        restaurants.push(events.getResponse(event));
       });
-      // get winners data
-      Promise.all(winnersRequest)
-      .then((winnersResult) => {
-        winnersResult.forEach((winners, index) => {
-          var result = [];
-          winners.forEach((data) => {
-            if(data){
-              if(data.user_id){
-                var is_available = 0;
-              }
-              else{
-                var is_available = 1;
-              }
-              if(data.name){
-                var user_name = data.name;
-              }
-              else{
-                var user_name = '';
-              }
-              if(data.image){
-                var user_image = CONSTANTS.DATABASE.USER_IMAGE_PATH + data.image;
-              }
-              else{
-                var user_image = '';
-              }
 
-              result.push({cash_prize : data.cash_prize + CONSTANTS.DATABASE.CURRENCY , position : data.position ,
-                          winning_code : data.winning_code, jumbled_code : data.jumbled_code , is_available : is_available ,
-                          user_name : user_name , user_image : user_image});
-            }
-          })
-          let event = results[index];
-          // get restuarants details
-          restaurants.push(events.getResponse(event,result));
-        });
+      // get restaurants data
+      let event_with_restaurants = await Promise.all(restaurants);
+      // get all cash prizes
+      let cashPrizeResult = await Promise.all(cash_prizes);
 
-        // get restaurants details
-        Promise.all(restaurants)
-        .then((finalResult) => {
-          res.status(200).json(finalResult);
-        })
-        .catch((error) => {
-          console.log(error);
-        return UniversalFunction.sendError(res, error);
-        });
-
-      })
-      .catch((error) => {
-        console.log(error);
-        return UniversalFunction.sendError(res, error);
+      event_with_restaurants.forEach( (event, index) => {
+        event.cash_prize = cashPrizeResult[index];
       });
+
+      res.status(200).json(event_with_restaurants);
   })
   .catch((err) => {
     console.log(err);
@@ -114,66 +75,28 @@ var upcomingEvents = (req, res) => {
   var dateTime = new Date();
   dateTime = moment(dateTime).format("YYYY-MM-DD HH:mm:ss");
 
-   var sql = 'Select events.id,events.event_time,events.name as event_name,events.cash_prize,events.id,events.description from events WHERE event_start_time > ? order by events.id DESC limit ? , ?';
+   var sql = 'Select events.name as event_name,events.id,events.event_start_time,events.event_end_time,events.description,events.total_prizes from events WHERE event_start_time > ? order by events.id DESC limit ? , ?';
 
   connection.query(mysql.format(sql , [dateTime, skip , limit]))
-  .then((results) => {
-    var winnersRequest = [], restaurants = [];
-
-    results.forEach((event) => {
-      winnersRequest.push(connection.query(mysql.format('Select cash_prize,winning_code,jumbled_code,position,user_id,name,image from winners left join users on users.id = winners.user_id where event_id = ?' , [event.id])));
-    });
-    // get winners data
-    Promise.all(winnersRequest)
-    .then((winnersResult) => {
-      winnersResult.forEach((winners, index) => {
-        var result = [];
-        winners.forEach((data) => {
-          if(data){
-            if(data.user_id){
-              var is_available = 0;
-            }
-            else{
-              var is_available = 1;
-            }
-            if(data.name){
-              var user_name = data.name;
-            }
-            else{
-              var user_name = '';
-            }
-            if(data.image){
-              var user_image = CONSTANTS.DATABASE.USER_IMAGE_PATH + data.image;
-            }
-            else{
-              var user_image = '';
-            }
-
-            result.push({cash_prize : data.cash_prize + CONSTANTS.DATABASE.CURRENCY , position : data.position ,
-                        winning_code : data.winning_code, jumbled_code : data.jumbled_code , is_available : is_available ,
-                        user_name : user_name , user_image : user_image});
-          }
-        })
-        let event = results[index];
-        // get restuarants details
-        restaurants.push(events.getResponse(event,result));
+  .then(async (results) => {
+    var restaurants = [], cash_prizes = [];
+      // TODO: remove default value of is_available, and update it according to availability of cash prize
+      results.forEach((event) => {
+        cash_prizes.push(connection.query(mysql.format('Select id, cash_prize, num_winners, sort_order, 1 as is_available from cash_prize where event_id = ?', [event.id])));
+        restaurants.push(events.getResponse(event));
       });
 
-      // get restaurants details
-      Promise.all(restaurants)
-      .then((finalResult) => {
-        res.status(200).json(finalResult);
-      })
-      .catch((error) => {
-        console.log(error);
-      return UniversalFunction.sendError(res, error);
+      // get restaurants data
+      let event_with_restaurants = await Promise.all(restaurants);
+      // get all cash prizes
+      let cashPrizeResult = await Promise.all(cash_prizes);
+
+      event_with_restaurants.forEach( (event, index) => {
+        event.cash_prize = cashPrizeResult[index];
       });
 
-    })
-    .catch((error) => {
-      console.log(error);
-      return UniversalFunction.sendError(res, error);
-    });
+      res.status(200).json(event_with_restaurants);
+    
   })
   .catch((err) => {
     console.log(err);

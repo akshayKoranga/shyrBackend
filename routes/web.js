@@ -67,7 +67,7 @@ router.get('/events/:id', auth, eventController.showEditEvent);
 
 router.post('/edit_events/:id', [auth,upload.array()], eventController.editEvent);
 
-router.get('/event_desc/:id', auth, eventController.eventDesc);
+router.get('/event_desc/:id', auth, eventController.showEvents);
 
 router.post('/change_password', auth, homeController.changepassword);
 
