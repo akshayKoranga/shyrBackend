@@ -274,12 +274,26 @@ var showEditEvent = (req, res ,err) => {
     connection.query('Select restaurant.id, restaurant.name from restaurant')
     .then((restaurant) => {
          getWinners(req.params.id , (response) => {
-             getRestaurants(req.params.id , (rest_data) => {
+             getRestaurants(req.params.id , async (rest_data) => {
+                let cash_prize = await connection.query(mysql.format('Select id, cash_prize, num_winners, sort_order from cash_prize where event_id = ?', [id]));
+                if(cash_prize && cash_prize.length > 0) {
+                  let game_rules = [];
+                  cash_prize.forEach((cValue, cIndex) => {
+                    game_rules.push(connection.query(mysql.format('Select id, level, max_time_to_complete, max_attempts, in_app_purchase, max_attempts_buy, max_time_buy, is_active from event_game_rules where cash_prize_id = ?', [cValue.id])));
+                  });
+
+                  let game_rules_result =  await Promise.all(game_rules);
+                  cash_prize.forEach((cValue, cIndex) => {
+                    cValue['game_rules'] = game_rules_result[cIndex] || [];
+                  });
+                }else {
+                  cash_prize = [];
+                }
                 return UniversalFunction.sendSuccess(res, { 
-                  events : results,
+                  events : results[0],
+                  cash_prize: cash_prize,
                   event_restaurants : rest_data,
-                  restaurants : restaurant,
-                  winners : response 
+                  restaurants : restaurant
                 });
                 //  res.render('edit_events',{events : results, event_restaurants : rest_data ,
                 //                            restaurants : restaurant,winners : response, errors :error});
