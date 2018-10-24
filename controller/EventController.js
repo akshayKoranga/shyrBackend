@@ -379,7 +379,7 @@ const updateEvent = async (req, res) => {
     console.log(req.body);
     let event = {
       id: req.body.id,
-      name: req.body.name.trim(),
+      name: req.body.event_name.trim(),
       description: req.body.description.trim(),
       event_start_time: moment(req.body.event_start_time,'MM/DD/YYYY HH:mm').format('YYYY-MM-DD HH:mm:ss'),
       event_end_time: moment(req.body.event_end_time,'MM/DD/YYYY HH:mm').format('YYYY-MM-DD HH:mm:ss'),
