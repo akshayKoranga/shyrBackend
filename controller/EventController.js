@@ -313,7 +313,7 @@ var showEditEvent = (req, res ,err) => {
 }
 
 /**
- * @description Edit event by id
+ * @description Edit event by id - deprecated
  * @param {*} req 
  * @param {*} res 
  */
@@ -366,6 +366,105 @@ var editEvent = (req, res) => {
     console.log(err);
     UniversalFunction.sendError(res, err);
   });
+}
+
+/**
+ * @description Edit event by id
+ * @param {*} req 
+ * @param {*} res 
+ */
+const updateEvent = async (req, res) => {
+  try{
+    console.log(`====== Update Event API ======`);
+    console.log(req.body);
+    let event = {
+      id: req.body.id,
+      name: req.body.name.trim(),
+      description: req.body.description.trim(),
+      event_start_time: moment(req.body.event_start_time,'MM/DD/YYYY HH:mm').format('YYYY-MM-DD HH:mm:ss'),
+      event_end_time: moment(req.body.event_end_time,'MM/DD/YYYY HH:mm').format('YYYY-MM-DD HH:mm:ss'),
+      submission_start_time: moment(req.body.submission_start_time,'MM/DD/YYYY HH:mm').format('YYYY-MM-DD HH:mm:ss'),
+      submission_end_time: moment(req.body.submission_end_time,'MM/DD/YYYY HH:mm').format('YYYY-MM-DD HH:mm:ss'),
+      total_prizes: req.body.cash_prize.length
+    };
+
+    let sql = "Update events set name = ?, description = ?, event_start_time = ?, event_end_time = ?, submission_start_time = ?,submission_end_time = ?, total_prizes = ? where id = ?";
+    let params = [ event.name, event.description, event.event_start_time, event.event_end_time, event.submission_start_time, event.submission_end_time, event.total_prizes, event.id ];
+    let eventResult = await connection.query(mysql.format(sql, params));
+
+    // update event
+    let event_id = event.id
+
+    // delete already associated restaurants
+    await connection.query(mysql.format("Delete from events_restaurant where event_id = ?" ,[event_id]));
+
+    // now insert associated restaurants
+    req.body.restaurants.forEach((rValue) => {
+      let restaurant = { event_id: event_id, restaurant_id: rValue };
+      // insert associated restaurant details
+      connection.query("Insert into events_restaurant(event_id,restaurant_id) values('"+restaurant.event_id+"','"+restaurant.restaurant_id+"')");
+    });
+
+    // now update cash prizes, corresponding to every prize, update game rules too
+    let cashPrizeArray = [];
+    req.body.cash_prize.forEach((cValue, cIndex) => {
+      let cash_prize = { 
+        id: cValue.id || -1,
+        event_id: event_id,
+        cash_prize: cValue.cash_prize,
+        num_winners: cValue.num_winners ,
+        sort_order: cIndex + 1
+      };
+      if(cash_prize.id == -1) {
+        // insert the cash prize
+        cashPrizeArray.push(connection.query("Insert into cash_prize(event_id,cash_prize,num_winners,sort_order) values('"+cash_prize.event_id+"','"+cash_prize.cash_prize+"','"+cash_prize.num_winners+"','"+cash_prize.sort_order+"')"));
+      }else {
+        // update cash prize
+        let sql = "Update cash_prize set cash_prize = ?, num_winners = ?, sort_order = ? where id = ?";
+        let params = [cash_prize.cash_prize, cash_prize.num_winners, cash_prize.sort_order, cash_prize.id];
+
+        cashPrizeArray.push(connection.query(mysql.format(sql, params)));
+      }
+      
+    });
+
+    let cashPrizeResult = await Promise.all(cashPrizeArray);
+    
+    let gamePlayArray = [];
+    req.body.cash_prize.forEach((cValue, cIndex) => {
+      // now we have the cash prize id
+      let cash_prize_id = cValue.id || cashPrizeResult[cIndex].insertId;
+      // now insert associated game rules for different levels
+      cValue.game_rules.forEach((gValue, gIndex) => {
+        let game_rule = {
+          id: gValue.id || -1,
+          event_id: event_id,
+          cash_prize_id: cash_prize_id,
+          level: gValue.level,
+          max_time_to_complete: gValue.max_time_to_complete,
+          max_attempts: gValue.max_attempts,
+          in_app_purchase: gValue.in_app_purchase || 0,
+          max_attempts_buy: gValue.max_attempts_buy || 0,
+          max_time_buy: gValue.max_time_buy || 0
+        };
+        if(game_rule.id == -1){
+          // insert game rule for given event, cash prize 
+          gamePlayArray.push(connection.query("Insert into event_game_rules(event_id, cash_prize_id, level, max_time_to_complete, max_attempts, in_app_purchase, max_attempts_buy, max_time_buy) values('"+game_rule.event_id+"','"+cash_prize_id+"','"+game_rule.level+"','"+game_rule.max_time_to_complete+"','"+game_rule.max_attempts+"','"+game_rule.in_app_purchase+"','"+game_rule.max_attempts_buy+"','"+game_rule.max_time_buy+"')"));
+        }else {
+          // update game rule
+          let sql = "Update event_game_rules set level = ?, max_time_to_complete = ?, max_attempts = ?, in_app_purchase = ?, max_attempts_buy = ?, max_time_buy = ? where id = ?";
+          let params = [game_rule.level, game_rule.max_time_to_complete, game_rule.max_attempts, game_rule.in_app_purchase, game_rule.max_attempts_buy, game_rule.max_time_buy, game_rule.id];
+          gamePlayArray.push(connection.query(mysql.format(sql, params)));
+        }
+      });
+    });
+
+    let gameRuleResult = await Promise.all(gamePlayArray);
+
+    UniversalFunction.sendSuccess(res, { event_id: event_id });
+  }catch (error) {
+      UniversalFunction.sendError(res, error);
+  }
 }
 
 /**
@@ -431,7 +530,8 @@ module.exports = {
   addEvents, // old
   addEvent,
   showEditEvent,
-  editEvent,
+  updateEvent,
+  //editEvent,
   //eventDesc,
   deleteEvents
 };

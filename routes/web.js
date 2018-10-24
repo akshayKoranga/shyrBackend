@@ -65,7 +65,7 @@ router.post('/add_events', [auth,upload.array()], eventController.addEvent);
 
 router.get('/events/:id', auth, eventController.showEditEvent);
 
-router.post('/edit_events/:id', [auth,upload.array()], eventController.editEvent);
+router.post('/edit_events/:id', [auth,upload.array()], eventController.updateEvent);
 
 router.get('/event_desc/:id', auth, eventController.showEvents);
 
