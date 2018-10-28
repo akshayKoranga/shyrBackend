@@ -1,3 +1,4 @@
+
 var http = require('http');
 var express = require('express');
 var engine = require('ejs-locals'); // to provide layout functionality
@@ -12,12 +13,12 @@ var cors = require('cors');
 var processImage = require('express-processimage');
 const swaggerUi = require('swagger-ui-express');
 // var cookieSession = require('cookie-session')
+// console.log('here i am');process.exit()
 
 var codes = require('./utils/codes');
 var routes = require('./routes/web'); //including web routes
 var apiRoutes = require('./routes/api');
 var socketRoutes = require('./routes/socket');
-
 var app = express();
 var server = http.createServer(app);
 var io = socketIO(server);
@@ -49,7 +50,7 @@ app.use(cors({
   credentials: true
 }));
 
-let options = {
+var options = {
   explorer: true,
   swaggerUrl: '/app.json'
 };

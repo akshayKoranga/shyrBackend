@@ -109,7 +109,7 @@ var password = md5(req.body.password);
 connection.query(mysql.format('Select * from users where email = ? and password = ? limit 1' , [email , password]))
 .then((results) => {
   if(results.length < 1){
-    var error = {};
+    var error = {}; 
     error.error = 'Bad request';
     error.error_description = 'Invalid email or password';
     res.status(400).json(error);

@@ -18,11 +18,12 @@ connection.query("Insert into app_login(user_id,session_id,device_id,device_type
 .then((results) => {
    return;
 } , (error) => {
-      res.send(JSON.stringify({
-          status : 500,
-          error : error,
-          response : null
-      }));
+  console.log(error)
+      // res.send(JSON.stringify({
+      //     status : 500,
+      //     error : error,
+      //     response : null
+      // }));
 })
 }
 
