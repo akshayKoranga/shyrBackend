@@ -17,7 +17,8 @@ const getGame = (req, res) => {
 
   req.query.event_id = parseInt(req.query.event_id);
   var cash_prize_id = req.query.cash_prize_id ? req.query.cash_prize_id : '';
-  if (req.query.event_id === '' || isNaN(req.query.event_id) || cash_prize_id.trim() == '') {
+  // console.log(cash_prize_id);process.exit()
+  if (req.query.event_id === '' || isNaN(req.query.event_id) || cash_prize_id == '') {
     let statusCode = new constants.response().BAD_REQUEST;
     return res.json(constants.response.sendFailure('INVALID_EVENT_ID', req.params.lang, statusCode));
   }
@@ -81,8 +82,15 @@ const getGame = (req, res) => {
                         } else {
                           game.game_rule = {}
                         }
-
-                        return res.json(constants.response.sendSuccess('DEFAULT_SUCCESS_MESSAGE', game, req.params.lang));
+                        connection.query(mysql.format("Select * from gameplay where id = ?", [oldGame.id]))
+                          .then((gamePlayData) => {
+                            game.game_play = gamePlayData[0]
+                            return res.json(constants.response.sendSuccess('DEFAULT_SUCCESS_MESSAGE', game, req.params.lang));
+                          }).catch((err) => {
+                            console.log(err);
+                            let statusCode = new constants.response().SERVER_ERROR;
+                            return res.json(constants.response.sendFailure('DEFAULT_FAILURE_MESSAGE', req.params.lang, statusCode));
+                          });
                       }).catch((err) => {
                         console.log(err);
                         let statusCode = new constants.response().SERVER_ERROR;
@@ -132,7 +140,15 @@ const getGame = (req, res) => {
                         } else {
                           game.game_rule = {}
                         }
-                        return res.json(constants.response.sendSuccess('DEFAULT_SUCCESS_MESSAGE', game, req.params.lang));
+                        connection.query(mysql.format("Select * from gameplay where id = ?", [newGame.insertId]))
+                          .then((gamePlayData) => {
+                            game.game_play = gamePlayData[0]
+                            return res.json(constants.response.sendSuccess('DEFAULT_SUCCESS_MESSAGE', game, req.params.lang));
+                          }).catch((err) => {
+                            console.log(err);
+                            let statusCode = new constants.response().SERVER_ERROR;
+                            return res.json(constants.response.sendFailure('DEFAULT_FAILURE_MESSAGE', req.params.lang, statusCode));
+                          });
                       }).catch((err) => {
                         console.log(err);
                         let statusCode = new constants.response().SERVER_ERROR;
@@ -184,69 +200,100 @@ const getNewGame = (gameLevel) => {
 };
 
 const updateResult = (req, res) => {
-  connection.query(mysql.format("Select * from gameplay where id = ?", [req.body.id]))
+  //--------------- Define variable ----------
+  let game_play_id = req.body.game_play_id ? req.body.game_play_id : '';
+  var game_lost = req.body.game_lost ? req.body.game_lost : '';
+  var game_play_time = req.body.game_play_time ? req.body.game_play_time : '';
+
+  // ---------- check mandatory param --------------
+  if (game_play_id == '' || game_lost.trim() == '' || game_play_time.trim() == '') {
+    let statusCode = new constants.response().PARAMETER_MISSING;
+    return res.json(constants.response.sendFailure('MANDATORY_PARAMETER_MISSING', req.params.lang, statusCode));
+  }
+  // ---------------- parse Int ------------------
+  game_lost = parseInt(game_lost);
+  game_play_time = parseInt(game_play_time);
+  if (isNaN(game_lost) || isNaN(game_play_time)) {
+    let statusCode = new constants.response().BAD_REQUEST;
+    return res.json(constants.response.sendFailure('DEFAULT_FAILURE_MESSAGE', req.params.lang, statusCode));
+  }
+
+  connection.query(mysql.format("Select * from gameplay where id = ?", [req.body.game_play_id]))
     .then((oldGame) => {
       if (oldGame && oldGame.length > 0) {
         oldGame = oldGame[0];
         // update game play time of last level
-        if (req.body.game_play_time && req.body.game_play_time !== '' && !isNaN(req.body.game_play_time)) {
-          req.body.game_play_time = parseInt(req.body.game_play_time);
-          if (oldGame.level === 1) {
-            oldGame.level_one_time = req.body.game_play_time;
-          } else if (oldGame.level === 2) {
-            oldGame.level_two_time = req.body.game_play_time;
-          } else if (oldGame.level === 3) {
-            oldGame.level_three_time = req.body.game_play_time;
-          }
 
-          if (oldGame.game_lost === 1) {
-            return UniversalFunction.sendError(res, CONSTANTS.STATUS_MSG.ERROR.GAME_ALREADY_LOST);
-          }
-          if (req.body.game_lost && req.body.game_lost != '' && !isNaN(req.body.game_lost)) {
-            req.body.game_lost = parseInt(req.body.game_lost);
-            oldGame.game_lost = req.body.game_lost > 1 ? 1 : req.body.game_lost;
-          }
+        if (oldGame.level == '1') {
+          oldGame.level_one_time = game_play_time;
+        } else if (oldGame.level == '2') {
+          oldGame.level_two_time = game_play_time;
+        } else if (oldGame.level == '3') {
+          oldGame.level_three_time = game_play_time;
+        }
 
-          // update
-          connection.query(mysql.format("Update gameplay set isComplete = ?, game_lost = ?, level_one_time = ?, level_two_time = ?, level_three_time = ? where id = ?", [1, oldGame.game_lost, oldGame.level_one_time, oldGame.level_two_time, oldGame.level_three_time, oldGame.id]))
-            .then((result) => {
-              if (oldGame.game_lost === 1) {
-                return res.json(constants.response.sendSuccess('GAME_LOST', '', req.params.lang));
-              }
-              if (oldGame.level === 3) {
-                let total_play_time = oldGame.level_one_time + oldGame.level_two_time + oldGame.level_three_time;
-                // insert in leader board
-                connection.query("Insert into leaderboard(event_id, game_id, user_id, total_play_time) values('" + oldGame.event_id + "', '" + oldGame.id + "', '" + oldGame.user_id + "', '" + total_play_time + "')")
-                  .then((gameOver) => {
-                    return res.json(constants.response.sendSuccess('GAME_FINISHED', '', req.params.lang));
-                  })
-                  .catch((error) => {
-                    console.log(error, 'error')
+        if (oldGame.game_lost == '1') {
+          let statusCode = new constants.response().REQUEST_TIMEOUT;
+          return res.json(constants.response.sendFailure('GAME_ALREADY_LOST', req.params.lang, statusCode));
+        }
+        req.body.game_lost = parseInt(req.body.game_lost);
+        if (req.body.game_lost && req.body.game_lost != '' && !isNaN(req.body.game_lost)) {
+          oldGame.game_lost = game_lost > 1 ? 1 : game_lost;
+        }
+
+        // update
+        connection.query(mysql.format("Update gameplay set isComplete = ?, game_lost = ?, level_one_time = ?, level_two_time = ?, level_three_time = ? where id = ?", [1, oldGame.game_lost, oldGame.level_one_time, oldGame.level_two_time, oldGame.level_three_time, oldGame.id]))
+          .then((result) => {
+            if (oldGame.game_lost === 1) {
+              return res.json(constants.response.sendSuccess('GAME_LOST', '', req.params.lang));
+            }
+            if (oldGame.level === 3) {
+              let total_play_time = oldGame.level_one_time + oldGame.level_two_time + oldGame.level_three_time;
+              // insert in leader board
+              connection.query("Insert into leaderboard(event_id, game_id, user_id, total_play_time) values('" + oldGame.event_id + "', '" + oldGame.id + "', '" + oldGame.user_id + "', '" + total_play_time + "')")
+                .then((gameOver) => {
+                  return res.json(constants.response.sendSuccess('GAME_FINISHED', '', req.params.lang));
+                })
+                .catch((error) => {
+                  console.log(error, 'error')
+                  let statusCode = new constants.response().SERVER_ERROR;
+                  return res.json(constants.response.sendFailure('DEFAULT_FAILURE_MESSAGE', req.params.lang, statusCode));
+                });
+            } else {
+              // --------------- select game rules ----------
+              connection.query(mysql.format("Select * from event_game_rules where event_id = ?  AND level = ?", [oldGame.event_id, 2]))
+                .then((gameRuleData) => {
+                  if (gameRuleData.length > 0) {
+                    req.query.cash_prize_id = gameRuleData[0].cash_prize_id
+                    req.query.event_id = oldGame.event_id;
+                    getGame(req, res);
+                  } else {
                     let statusCode = new constants.response().SERVER_ERROR;
                     return res.json(constants.response.sendFailure('DEFAULT_FAILURE_MESSAGE', req.params.lang, statusCode));
-                  });
-              } else {
-                // get next level game
-                req.query.event_id = oldGame.event_id;
-                getGame(req, res);
-              }
-            })
-            .catch((error) => {
-              console.log(error);
-              let statusCode = new constants.response().SERVER_ERROR;
-              return res.json(constants.response.sendFailure('DEFAULT_FAILURE_MESSAGE', req.params.lang, statusCode));
-            });
-        } else {
-          let statusCode = new constants.response().SERVER_ERROR;
-          return res.json(constants.response.sendFailure('INVALID_GAME_PLAY_TIME', req.params.lang, statusCode));
-        }
+                  }
+                })
+                .catch((error) => {
+                  console.log(error);
+                  let statusCode = new constants.response().SERVER_ERROR;
+                  return res.json(constants.response.sendFailure('DEFAULT_FAILURE_MESSAGE', req.params.lang, statusCode));
+                });
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+            let statusCode = new constants.response().SERVER_ERROR;
+            return res.json(constants.response.sendFailure('DEFAULT_FAILURE_MESSAGE', req.params.lang, statusCode));
+          });
+
       } else {
-        let statusCode = new constants.response().SERVER_ERROR;
+        let statusCode = new constants.response().BAD_REQUEST;
         return res.json(constants.response.sendFailure('INVALID_GAME_PLAY_TIME', req.params.lang, statusCode));
       }
     })
     .catch((error) => {
-      return UniversalFunction.sendError(res, error);
+      console.log(error, 'error')
+      let statusCode = new constants.response().SERVER_ERROR;
+      return res.json(constants.response.sendFailure('DEFAULT_FAILURE_MESSAGE', req.params.lang, statusCode));
     });
 };
 

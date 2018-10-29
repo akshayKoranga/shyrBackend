@@ -1,3 +1,6 @@
+//------------------mthis is new game controller -------------
+
+
 let express = require('express');
 var mysql = require('mysql');
 var connection = require('./../../connect');
@@ -36,10 +39,10 @@ module.exports = function gameControllerNew() {
 
 
 
-    api.get('/startGame',  (req, res) => {
+    api.get('/startGame', (req, res) => {
         try {
-           // req.params.lang = 'en'
-//  console.log(req.params());process.exit()
+            // req.params.lang = 'en'
+            //  console.log(req.params());process.exit()
             // ---------------define Variable -----------------------------
             var user_id = req.user_id;
             var event_id = req.query.event_id ? req.query.event_id : '';
@@ -57,7 +60,7 @@ module.exports = function gameControllerNew() {
 
                 let gameLevel = 1,
                     game;
-                // check if user alredy played game for the given event
+                // check if game played for the given event
                 connection.query(mysql.format("Select * from gameplay where user_id = ? AND event_id = ?", [user_id, event_id]))
                     .then((oldGame) => {
                         //console.log(oldGame);process.exit()

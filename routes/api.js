@@ -39,7 +39,7 @@ router.get('/fun-game', auth.appAuth, gameController.getFunGame);
 // router.get('/:lang/testing_game', gameControllerNew.testing_fun);
 // router.get('/:lang/testing_game', authmiddleware.auth_route, (req, res) => {
 // })
-router.post('/game', auth.appAuth, gameController.updateResult);
+router.put('/game/:lang/update_game_play', auth.appAuth, gameController.updateResult);
 
 /** END */
 

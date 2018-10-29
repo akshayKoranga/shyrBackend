@@ -36,7 +36,15 @@ let localisedStrings = {
     'GAME_LOST': {
         en: 'You lost the game. Better luck next time!',
         es: 'Spanish You lost the game. Better luck next time!'
-    }
+    },
+    "GAME_ALREADY_LOST": {
+        en: 'You already lost the game please try next time.',
+        es: 'Spanish You already lost the game please try next time.'
+    },
+    "INVALID_CASH_PRIZE_ID": {
+        en: 'Invalid cash prize id.',
+        es: 'Spanish Invalid cash prize id.'
+    },
 }
 
 
