@@ -74,7 +74,6 @@ const getGame = (req, res) => {
                     } else {
                       game.event_data = {};
                     }
-                    game.game_play = oldGame;
                     connection.query(mysql.format("Select * from event_game_rules where event_id = ? AND cash_prize_id = ?  AND level = ?", [req.query.event_id, cash_prize_id, gameLevel]))
                       .then((gameRuleData) => {
                         if (gameRuleData.length > 0) {
@@ -126,7 +125,6 @@ const getGame = (req, res) => {
                     } else {
                       game.event_data = {};
                     }
-                    game.game_play = oldGame;
                     connection.query(mysql.format("Select * from event_game_rules where event_id = ? AND cash_prize_id = ?  AND level = ?", [req.query.event_id, cash_prize_id, gameLevel]))
                       .then((gameRuleData) => {
                         if (gameRuleData.length > 0) {
