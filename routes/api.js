@@ -36,10 +36,13 @@ router.get('/assets/img/:folder/:image/:w?/:h?', homeController.imageProcess);
 /** GAME ROUTES */
 router.get('/game/:lang/start_game', auth.appAuth, gameController.getGame);
 router.get('/fun-game', auth.appAuth, gameController.getFunGame);
+
 // router.get('/:lang/testing_game', gameControllerNew.testing_fun);
 // router.get('/:lang/testing_game', authmiddleware.auth_route, (req, res) => {
 // })
 router.put('/game/:lang/update_game_play', auth.appAuth, gameController.updateResult);
+router.get('/game/:lang/get_user_record', auth.appAuth, gameController.allUserRecord);
+
 
 /** END */
 

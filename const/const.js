@@ -14,8 +14,8 @@ let localisedStrings = {
         es: 'Spanish Invalid event id.'
     },
     'GAME_ALREADY_COMPLETED': {
-        en: 'Game already completed.',
-        es: 'Spanish Game already completed.'
+        en: 'You completed the game.',
+        es: 'Spanish You completed the game.'
     },
     'INVALID_GAME_LEVEL': {
         en: 'Invalid game level.',
@@ -44,6 +44,10 @@ let localisedStrings = {
     "INVALID_CASH_PRIZE_ID": {
         en: 'Invalid cash prize id.',
         es: 'Spanish Invalid cash prize id.'
+    },
+    'GAME_ALREADY_LOST': {
+        en: 'Sorry you lost the game.',
+        es: 'Sorry you lost the game.'
     },
 }
 

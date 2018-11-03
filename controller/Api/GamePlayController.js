@@ -26,7 +26,7 @@ const getGame = (req, res) => {
   let gameLevel = 1,
     game;
   // check if user alredy played game for the given event
-  connection.query(mysql.format("Select * from gameplay where user_id = ? AND event_id = ?", [req.user_id, req.query.event_id]))
+  connection.query(mysql.format("Select * from gameplay where user_id = ? AND event_id = ? AND cash_prize_id = ?", [req.user_id, req.query.event_id, cash_prize_id]))
     .then((oldGame) => {
       //console.log(oldGame);process.exit()
 
@@ -55,6 +55,7 @@ const getGame = (req, res) => {
                 try {
                   game = getNewGame(gameLevel);
                 } catch (error) {
+                  console.log(error)
                   let statusCode = new constants.response().GATEWAY_TIMEOUT;
                   return res.json(constants.response.sendFailure('INVALID_GAME_LEVEL', req.params.lang, statusCode));
                 }
@@ -99,7 +100,8 @@ const getGame = (req, res) => {
 
                   })
                   .catch((error) => {
-                    return UniversalFunction.sendError(res, error);
+                    console.log(error)
+                    return res.json(constants.response.sendFailure('DEFAULT_FAILURE_MESSAGE', req.params.lang, statusCode));
                   });
 
               } else {
@@ -115,7 +117,8 @@ const getGame = (req, res) => {
                   event_id: req.query.event_id,
                   user_id: req.user_id,
                   level: gameLevel,
-                  isComplete: 0
+                  isComplete: 0,
+                  cash_prize_id:cash_prize_id
                 }
                 connection.query(mysql.format("Insert into gameplay SET ?", [insertGamePlay]))
                   .then((newGame) => {
@@ -297,21 +300,52 @@ const updateResult = (req, res) => {
     });
 };
 
+
+const allUserRecord = (req, res) => {
+  //--------------- Define variable ----------
+  let static_user_id = req.query.static_user_id ? req.query.static_user_id : '';
+
+  // ---------- check mandatory param --------------
+  if (static_user_id == '' ) {
+    let statusCode = new constants.response().PARAMETER_MISSING;
+    return res.json(constants.response.sendFailure('MANDATORY_PARAMETER_MISSING', req.params.lang, statusCode));
+  }
+  // ---------------- parse Int ------------------
+  static_user_id = parseInt(static_user_id);
+  if (isNaN(static_user_id)) {
+    let statusCode = new constants.response().BAD_REQUEST;
+    return res.json(constants.response.sendFailure('DEFAULT_FAILURE_MESSAGE', req.params.lang, statusCode));
+  }
+
+  connection.query(mysql.format("Select * from gameplay where user_id = ?", [static_user_id]))
+    .then((allUserRecord) => {
+      return res.json(constants.response.sendSuccess('DEFAULT_SUCCESS_MESSAGE', allUserRecord, req.params.lang));
+    
+    })
+    .catch((error) => {
+      console.log(error, 'error')
+      let statusCode = new constants.response().SERVER_ERROR;
+      return res.json(constants.response.sendFailure('DEFAULT_FAILURE_MESSAGE', req.params.lang, statusCode));
+    });
+};
+
 const getFunGame = (req, res) => {
   try {
     let gameLevel = Math.ceil(Math.random() * 10) % 3;
     gameLevel = gameLevel > 0 ? gameLevel : 1;
     let game = getNewGame(gameLevel);
-    return UniversalFunction.sendSuccess(res, game);
+    return res.json(constants.response.sendSuccess('GAME_LOST', game, req.params.lang));
   } catch (error) {
-    return UniversalFunction.sendError(res, error);
+    console.log(error)
+    return res.json(constants.response.sendFailure('DEFAULT_FAILURE_MESSAGE', req.params.lang, statusCode));
   }
 };
 
 module.exports = {
   getGame: getGame,
   getFunGame: getFunGame,
-  updateResult: updateResult
+  updateResult: updateResult,
+  allUserRecord
 };
 
 

@@ -41,10 +41,7 @@ var middleware = [
     resave : false,
     saveUninitialized: false
   }),
-  fileUpload(),
-  processImage({root: 'public'})
 ];
-
 app.use(middleware);
 app.use(cors({
   credentials: true
@@ -56,12 +53,17 @@ var options = {
 };
 //app.use('/', express.static('docs'));
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(null, options));
-
+app.use(bodyParser.json({
+  limit: "50 mb"
+}));
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
 app.use('/admin',routes); //adding a prefix 'admin' to all web routes. Any route beginning with 'admin' will be handled by the specified module
 app.use('/api',apiRoutes);
 
 app.locals.moment = moment;
-
+  
 // app.get('/',(req, res) => {
   io.on('connection' , (socket) => {
     console.log('New user connected');
