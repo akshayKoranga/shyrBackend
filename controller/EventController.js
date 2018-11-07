@@ -587,39 +587,21 @@ const getEventsRestaurant = (req, res) => {
 
 
 
-const getEventsRestaurant = (req, res) => {
-  try {
-    //--------------- Define variable ----------
-    let event_id = req.params.event_id ? req.params.event_id : '';
-    // ---------- check mandatory param --------------
-    if (event_id == '') {
-      return UniversalFunction.sendError(res, 'Mandatory param missing');
-    }
-    connection.query(mysql.format("Select er.*, r.name, r.logo, e.name from events_restaurant as er left join restaurant as r on r.id =er.restaurant_id left join events as e on e.id =er.event_id where event_id = ?", [event_id]))
-      .then((eventrestaurantdata) => {
-        UniversalFunction.sendSuccess(res, eventrestaurantdata);
-      })
-      .catch((err) => {
-        console.log(err);
-        return UniversalFunction.sendError(res, err);
-      });
-  } catch (e) {
-    console.log(e);
-    UniversalFunction.sendError(res, e);
-
-  }
-
-};
 
 
 const addInvoice = (req, res) => {
-  // console.log(req.files);process.exit()
+  req.assert('restaurant_id', 'Restaurant id is required').notEmpty();
+  var errors = req.validationErrors();
+
+  if (errors) {
+    return UniversalFunction.sendError(res, errors);
+  }
+  var restaurant_id = req.body.restaurant_id ? req.body.restaurant_id : '';
   if (!req.files.invoice_image) {
     var image = '';
   } else {
     var image = req.files.invoice_image[0].key;
   }
-  const restaurant_id = req.body.restaurant_id.trim();
 
   insertObj = {
     restaurant_id: restaurant_id,
