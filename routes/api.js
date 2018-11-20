@@ -1,11 +1,14 @@
 var express = require('express');
 var multer = require('multer');
 var upload = multer();
+let uploadS3 = require('../Middleware/storage.js')('shyr-cloud');
+
 
 var eventController = require('../controller/Api/EventController');
 var homeController = require('../controller/Api/HomeController');
 var gameController = require('../controller/Api/GamePlayController');
- var gameControllerNew = require('../controller/Api/GamePlayControllerNew');
+var userController = require('../controller/Api/userController');
+var gameControllerNew = require('../controller/Api/GamePlayControllerNew');
 var auth = require('../Middleware/CheckSession');
 
 var router = express.Router();
@@ -23,8 +26,8 @@ router.post('/forgotPassword', upload.array(), homeController.forgotPassword);
 router.get('/resetPassword/:token', homeController.showResetPassword);
 router.post('/resetPassword', homeController.resetPassword);
 
-router.get('/events', auth.appAuth, eventController.showEvents);
-router.get('/upcoming-events', auth.appAuth, eventController.upcomingEvents);
+// router.get('/events', auth.appAuth, eventController.showEvents);
+// router.get('/upcoming-events', auth.appAuth, eventController.upcomingEvents);
 
 router.get('/hints', auth.appAuth, eventController.showHints);
 
@@ -42,6 +45,25 @@ router.get('/fun-game', auth.appAuth, gameController.getFunGame);
 // })
 router.put('/game/:lang/update_game_play', auth.appAuth, gameController.updateResult);
 router.get('/game/:lang/get_user_record', auth.appAuth, gameController.allUserRecord);
+
+//------------- event api ----------------
+router.get('/event/:lang/upcoming_events', auth.appAuth, eventController.upcomingEvents);
+router.get('/event/:lang/all_events', auth.appAuth, eventController.showEvents);
+router.get('/event/:lang/ongoing_events', auth.appAuth, eventController.ongoingEvents);
+router.post('/event/:lang/add_booster_pack', auth.appAuth, eventController.addBoosterPack);
+
+
+//--------------  user api ---------------
+var Upload = uploadS3.fields([{ // define params for s3 upload  
+    name: 'user_invoice_image'
+  }]);
+router.post('/user/:lang/add_invoice', auth.appAuth, Upload, userController.addInvoice);
+
+
+
+
+
+
 
 
 /** END */

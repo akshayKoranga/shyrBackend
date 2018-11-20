@@ -26,7 +26,31 @@ var auth = (req, res, next) => {
         if (results.length > 0) {
           next();
         } else {
-          UniversalFunction.sendError(res, CONSTANTS.STATUS_MSG.ERROR.INVALID_TOKEN);
+          // --------- check user session --------------
+          var session_id = token;
+          if (!session_id) {
+            var error = {};
+            error.error = 'unauthorized';
+            error.error_description = 'Unauthorized request.';
+            res.status(401).json(error);
+          } else {
+            connection.query(mysql.format('Select * from app_login where session_id = ?', [session_id]))
+              .then((results) => {
+                if (results.length < 1) {
+                  var error = {};
+                  error.error = 'forbidden';
+                  error.error_description = 'Your session has been expired.';
+                  res.status(403).json(error);
+                } else {
+                  req.user_id = results[0].user_id;
+                  next();
+                }
+              })
+              .catch((err) => {
+                UniversalFunction.sendError(res, CONSTANTS.STATUS_MSG.ERROR.INVALID_TOKEN);
+                console.log('yess ser',err);
+              });
+          }
         }
       })
       .catch((err) => {
@@ -51,12 +75,12 @@ router.get('/dashboard', auth, homeController.showDashboard);
 
 router.get('/restaurants', auth, eventController.getRestaurantList);
 var Upload = uploadS3.fields([{ // define params for s3 upload  
-  name: 'restaurant_logo'
+  name: 'logo'
 }]);
 
 router.post('/restaurants', auth, Upload, eventController.addRestaurant);
 
-router.get('/restaurants/:id', auth,  eventController.getRestaurantDetails);
+router.get('/restaurants/:id', auth, eventController.getRestaurantDetails);
 
 router.post('/restaurants/:id', auth, Upload, eventController.editRestaurant);
 

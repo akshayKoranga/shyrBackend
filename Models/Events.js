@@ -1,7 +1,7 @@
 var mysql = require('mysql');
 var connection = require('../connect');
 
-const CONSTANTS = require('./../const/constants');
+const CONSTANTS = require('./../const/constants');  
 
 var getResponse = (event) => {
   return new Promise((resolve, reject) => {
@@ -13,12 +13,12 @@ var getResponse = (event) => {
     //event.game_play_time = events.event_time ? events.event_time*1000 : 0;
     //event.winners = result;
 
-    connection.query(mysql.format('Select restaurant.name,restaurant.logo from restaurant left join events_restaurant on restaurant.id = events_restaurant.restaurant_id where event_id = ? limit 3' , [event.id]))
+    connection.query(mysql.format('Select restaurant.name,ifnull(concat("https://s3.us-east-2.amazonaws.com/ankit-cloud/shyr-cloud/",restaurant.logo), "") as logo from restaurant left join events_restaurant on restaurant.id = events_restaurant.restaurant_id where event_id = ? limit 3' , [event.id]))
     .then((results) => {
       var rest_data = [];
       results.forEach((rest) => {
         if(rest){
-          rest_data.push({name : rest.name , logo : CONSTANTS.DATABASE.RESTAURANT_IMAGE_PATH + rest.logo});
+          rest_data.push({name : rest.name , logo : rest.logo});
         }
       })
       event.restaurant = rest_data;

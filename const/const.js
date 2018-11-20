@@ -14,8 +14,8 @@ let localisedStrings = {
         es: 'Spanish Invalid event id.'
     },
     'GAME_ALREADY_COMPLETED': {
-        en: 'You completed the game.',
-        es: 'Spanish You completed the game.'
+        en: 'You have already played this game and you can’t play it again, please choose other cash prize or play other running events.',
+        es: 'Spanish You have already played this game and you can’t play it again, please choose other cash prize or play other running events.'
     },
     'INVALID_GAME_LEVEL': {
         en: 'Invalid game level.',
@@ -45,11 +45,22 @@ let localisedStrings = {
         en: 'Invalid cash prize id.',
         es: 'Spanish Invalid cash prize id.'
     },
-    'GAME_ALREADY_LOST': {
+    'GAME_ALREADY_LOST1': {
         en: 'Sorry you lost the game.',
         es: 'Sorry you lost the game.'
     },
+    'MANDATORY_PARAMETER_MISSING': {
+        en: 'One or more of the required parameters are missing.',
+        es: 'Spanish - mandatory parameters missing.'
+    },
+    'BOOSTER_PACK_ALREADY_EXSIT': {
+        en: 'Booster pack for this event is already exist.',
+        es: 'Spanish - Booster pack for this event is already exist.'
+    },
 }
+
+// 3. about the error-pop ups:
+// Currently, i have completed the game (cash prize), and if i try playing same game, it gives me error - “You completed the game” it should say: “You have already played this game and you can’t play it again, please choose other cash prize or play other running events”
 
 
 
@@ -133,6 +144,8 @@ class userRole {
     }
 }
 
+
+//let rand = '24785139'
 
 module.exports.userRole = userRole
 module.exports.response = sendResponse;

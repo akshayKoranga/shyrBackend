@@ -14,7 +14,6 @@ var {
 } = require('./../../utils/codes');
 
 const getGame = (req, res) => {
-
   req.query.event_id = parseInt(req.query.event_id);
   var cash_prize_id = req.query.cash_prize_id ? req.query.cash_prize_id : '';
   // console.log(cash_prize_id);process.exit()
@@ -25,8 +24,9 @@ const getGame = (req, res) => {
 
   let gameLevel = 1,
     game;
+   // console.log(req.user_id, req.query.event_id, cash_prize_id);process.exit()
   // check if user alredy played game for the given event
-  connection.query(mysql.format("Select * from gameplay where user_id = ? AND event_id = ? AND cash_prize_id = ?", [req.user_id, req.query.event_id, cash_prize_id]))
+  connection.query(mysql.format("Select * from gameplay where user_id = ? AND event_id = ? AND cash_prize_id = ? ", [req.user_id, req.query.event_id, cash_prize_id])) // cash_prize_id  commented as requirement
     .then((oldGame) => {
       //console.log(oldGame);process.exit()
 
@@ -38,18 +38,100 @@ const getGame = (req, res) => {
               if (oldGame && oldGame.length > 0) {
                 oldGame = oldGame[0];
 
-                if (oldGame.game_lost === 1) {
+                if (oldGame.game_lost == 1) {
                   let statusCode = new constants.response().GATEWAY_TIMEOUT;
                   return res.json(constants.response.sendFailure('GAME_ALREADY_COMPLETED', req.params.lang, statusCode));
                 } else if (oldGame.isComplete == 0) {
+                 // console.log('hhhheee');process.exit()
                   // current level in progress, return a game of same level
                   gameLevel = oldGame.level;
                 } else if (oldGame.level < 3) {
+                  //console.log('oooooo');process.exit()
+
                   // last level game completed, send next level
                   gameLevel = oldGame.level + 1;
                 } else {
+
+                  //------------------ chk gameplay ------------------
+
+                // new game request
+                try {
+                  game = getNewGame(gameLevel);
+                } catch (error) {
                   let statusCode = new constants.response().GATEWAY_TIMEOUT;
-                  return res.json(constants.response.sendFailure('GAME_ALREADY_COMPLETED', req.params.lang, statusCode));
+                  return res.json(constants.response.sendFailure('INVALID_GAME_LEVEL', req.params.lang, statusCode));
+                }
+                // console.log(game);process.exit()
+                let insertGamePlay = {
+                  event_id: req.query.event_id,
+                  user_id: req.user_id,
+                  level: gameLevel,
+                  isComplete: 0,
+                  cash_prize_id: cash_prize_id
+                }
+                connection.query(mysql.format("Insert into gameplay SET ?", [insertGamePlay]))
+                  .then((newGame) => {
+                    game['id'] = newGame.insertId;
+                    game['event_id'] = req.query.event_id;
+
+                    // -------------- event data ---------
+                    if (cashPrizeData.length > 0) {
+                      game.cash_prize_data = cashPrizeData[0];
+                    } else {
+                      game.cash_prize_data = {};
+                    }
+                    if (eventData.length > 0) {
+                      game.event_data = eventData[0];
+                    } else {
+                      game.event_data = {};
+                    }
+                    connection.query(mysql.format("Select * from event_game_rules where event_id = ? AND cash_prize_id = ?  AND level = ?", [req.query.event_id, cash_prize_id, gameLevel]))
+                      .then((gameRuleData) => {
+                        if (gameRuleData.length > 0) {
+                          game.game_rule = gameRuleData[0]
+                        } else {
+                          game.game_rule = {}
+                        }
+                        connection.query(mysql.format("Select * from gameplay where id = ?", [newGame.insertId]))
+                          .then((gamePlayData) => {
+                            game.game_play = gamePlayData[0]
+                            // ------- select booster pack --------------
+                            connection.query(mysql.format("SELECT * FROM `booster_pack` WHERE user_id = ? AND event_id = ? AND cash_prize_id = ? ", [req.user_id, req.query.event_id, cash_prize_id]))
+                              .then((getBooster) => {
+                                game.booster_pack = getBooster
+                                return res.json(constants.response.sendSuccess('DEFAULT_SUCCESS_MESSAGE', game, req.params.lang));
+
+                              })
+                              .catch((error) => {
+                                console.log(error, 'err')
+                                let statusCode = new constants.response().SERVER_ERROR;
+                                return res.json(constants.response.sendFailure('DEFAULT_FAILURE_MESSAGE', req.params.lang, statusCode));
+                              }); // --- end of select booster
+                          }).catch((err) => {
+                            console.log(err);
+                            let statusCode = new constants.response().SERVER_ERROR;
+                            return res.json(constants.response.sendFailure('DEFAULT_FAILURE_MESSAGE', req.params.lang, statusCode));
+                          });
+                      }).catch((err) => {
+                        console.log(err);
+                        let statusCode = new constants.response().SERVER_ERROR;
+                        return res.json(constants.response.sendFailure('DEFAULT_FAILURE_MESSAGE', req.params.lang, statusCode));
+                      });
+                    //return UniversalFunction.sendSuccess(res, game);
+                  })
+                  .catch((error) => {
+                    console.log(error, 'err')
+                    let statusCode = new constants.response().SERVER_ERROR;
+                    return res.json(constants.response.sendFailure('DEFAULT_FAILURE_MESSAGE', req.params.lang, statusCode));
+                  });
+                  //-------------------delete this part --------------
+
+
+
+
+
+                  // let statusCode = new constants.response().GATEWAY_TIMEOUT;
+                  // return res.json(constants.response.sendFailure('GAME_ALREADY_COMPLETED', req.params.lang, statusCode));
                 }
 
                 try {
@@ -86,7 +168,19 @@ const getGame = (req, res) => {
                         connection.query(mysql.format("Select * from gameplay where id = ?", [oldGame.id]))
                           .then((gamePlayData) => {
                             game.game_play = gamePlayData[0]
-                            return res.json(constants.response.sendSuccess('DEFAULT_SUCCESS_MESSAGE', game, req.params.lang));
+                            // ------- select booster pack --------------
+                            connection.query(mysql.format("SELECT * FROM `booster_pack` WHERE user_id = ? AND event_id = ? AND cash_prize_id = ? ", [req.user_id, req.query.event_id, cash_prize_id]))
+                              .then((getBooster) => {
+                                game.booster_pack = getBooster
+                                return res.json(constants.response.sendSuccess('DEFAULT_SUCCESS_MESSAGE', game, req.params.lang));
+
+                              })
+                              .catch((error) => {
+                                console.log(error, 'err')
+                                let statusCode = new constants.response().SERVER_ERROR;
+                                return res.json(constants.response.sendFailure('DEFAULT_FAILURE_MESSAGE', req.params.lang, statusCode));
+                              }); // --- end of select booster
+
                           }).catch((err) => {
                             console.log(err);
                             let statusCode = new constants.response().SERVER_ERROR;
@@ -101,8 +195,10 @@ const getGame = (req, res) => {
                   })
                   .catch((error) => {
                     console.log(error)
+                    let statusCode = new constants.response().SERVER_ERROR;
                     return res.json(constants.response.sendFailure('DEFAULT_FAILURE_MESSAGE', req.params.lang, statusCode));
                   });
+                  
 
               } else {
                 // new game request
@@ -118,7 +214,7 @@ const getGame = (req, res) => {
                   user_id: req.user_id,
                   level: gameLevel,
                   isComplete: 0,
-                  cash_prize_id:cash_prize_id
+                  cash_prize_id: cash_prize_id
                 }
                 connection.query(mysql.format("Insert into gameplay SET ?", [insertGamePlay]))
                   .then((newGame) => {
@@ -146,7 +242,18 @@ const getGame = (req, res) => {
                         connection.query(mysql.format("Select * from gameplay where id = ?", [newGame.insertId]))
                           .then((gamePlayData) => {
                             game.game_play = gamePlayData[0]
-                            return res.json(constants.response.sendSuccess('DEFAULT_SUCCESS_MESSAGE', game, req.params.lang));
+                            // ------- select booster pack --------------
+                            connection.query(mysql.format("SELECT * FROM `booster_pack` WHERE user_id = ? AND event_id = ? AND cash_prize_id = ? ", [req.user_id, req.query.event_id, cash_prize_id]))
+                              .then((getBooster) => {
+                                game.booster_pack = getBooster
+                                return res.json(constants.response.sendSuccess('DEFAULT_SUCCESS_MESSAGE', game, req.params.lang));
+
+                              })
+                              .catch((error) => {
+                                console.log(error, 'err')
+                                let statusCode = new constants.response().SERVER_ERROR;
+                                return res.json(constants.response.sendFailure('DEFAULT_FAILURE_MESSAGE', req.params.lang, statusCode));
+                              }); // --- end of select booster
                           }).catch((err) => {
                             console.log(err);
                             let statusCode = new constants.response().SERVER_ERROR;
@@ -247,6 +354,7 @@ const updateResult = (req, res) => {
         // update
         connection.query(mysql.format("Update gameplay set isComplete = ?, game_lost = ?, level_one_time = ?, level_two_time = ?, level_three_time = ? where id = ?", [1, oldGame.game_lost, oldGame.level_one_time, oldGame.level_two_time, oldGame.level_three_time, oldGame.id]))
           .then((result) => {
+          //  console.log(result);process.exit()
             if (oldGame.game_lost === 1) {
               return res.json(constants.response.sendSuccess('GAME_LOST', '', req.params.lang));
             }
@@ -267,10 +375,11 @@ const updateResult = (req, res) => {
               connection.query(mysql.format("Select * from event_game_rules where event_id = ?  AND level = ?", [oldGame.event_id, 2]))
                 .then((gameRuleData) => {
                   if (gameRuleData.length > 0) {
-                    req.query.cash_prize_id = gameRuleData[0].cash_prize_id
+                    req.query.cash_prize_id = oldGame.cash_prize_id
                     req.query.event_id = oldGame.event_id;
                     getGame(req, res);
                   } else {
+                    console.log('here is error')
                     let statusCode = new constants.response().SERVER_ERROR;
                     return res.json(constants.response.sendFailure('DEFAULT_FAILURE_MESSAGE', req.params.lang, statusCode));
                   }
@@ -306,7 +415,7 @@ const allUserRecord = (req, res) => {
   let static_user_id = req.query.static_user_id ? req.query.static_user_id : '';
 
   // ---------- check mandatory param --------------
-  if (static_user_id == '' ) {
+  if (static_user_id == '') {
     let statusCode = new constants.response().PARAMETER_MISSING;
     return res.json(constants.response.sendFailure('MANDATORY_PARAMETER_MISSING', req.params.lang, statusCode));
   }
@@ -317,10 +426,10 @@ const allUserRecord = (req, res) => {
     return res.json(constants.response.sendFailure('DEFAULT_FAILURE_MESSAGE', req.params.lang, statusCode));
   }
 
-  connection.query(mysql.format("Select * from gameplay where user_id = ?", [static_user_id]))
+  connection.query(mysql.format("Select gp.*, e.* from gameplay as gp LEFT JOIN events AS e ON e.id = gp.event_id where user_id = ? ", [static_user_id]))
     .then((allUserRecord) => {
       return res.json(constants.response.sendSuccess('DEFAULT_SUCCESS_MESSAGE', allUserRecord, req.params.lang));
-    
+      //neLy8oDlJdbfe8swefqanZlyhgXKKg6F
     })
     .catch((error) => {
       console.log(error, 'error')

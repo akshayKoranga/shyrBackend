@@ -2,6 +2,7 @@ var mysql = require('mysql');
 var connection = require('./../connect');
 
 var appAuth = (req, res , next) => {
+  
   var session_id = req.body.session_id;
   if(!session_id){
     session_id = req.query.session_id;
@@ -38,3 +39,10 @@ var appAuth = (req, res , next) => {
 module.exports = {
   appAuth
 }
+
+
+
+/**
+ * get_user_record   --- brands
+ * add invoice
+ */

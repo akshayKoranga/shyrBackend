@@ -32,7 +32,7 @@ var showEvents = (req, res) => {
  * @param {*} res 
  */
 var getRestaurantList = (req, res) => {
-  connection.query('SELECT * from restaurant')
+  connection.query('SELECT r.id, r.name, ifnull(concat("https://s3.us-east-2.amazonaws.com/ankit-cloud/shyr-cloud/",r.logo), "") as logo , IFNULL(i.invoice_image, "") as image FROM `restaurant` as r left JOIN restaurant_invoice as i ON i.restaurant_id = r.id ORDER BY id DESC')
     .then((results) => {
       return UniversalFunction.sendSuccess(res, results);
       //res.render('add_events' , {companies : results});
@@ -50,12 +50,16 @@ var getRestaurantList = (req, res) => {
  */
 const addRestaurant = (req, res) => {
   // console.log(req.files);process.exit()
-  if (!req.files.restaurant_logo) {
+  if (!req.files.logo) {
     var image = '';
   } else {
-    var image = req.files.restaurant_logo[0].key;
+    var image = req.files.logo[0].key;
   }
-  const resturant_name = req.body.name.trim();
+  let resturant_name = req.body.name ? req.body.name : '';
+  // ---------- check mandatory param --------------
+  if (resturant_name == '') {
+    return UniversalFunction.sendError(res, 'Mandatory param missing');
+  }
   insertObj = {
     name: resturant_name,
     logo: image
@@ -65,11 +69,19 @@ const addRestaurant = (req, res) => {
   connection.query(mysql.format("Insert into restaurant SET ?", [insertObj]))
     .then((restaurant) => {
       var restaurant_id = restaurant.insertId;
-      return UniversalFunction.sendSuccess(res, restaurant_id);
+      connection.query(mysql.format('SELECT r.id, r.name, ifnull(concat("https://s3.us-east-2.amazonaws.com/ankit-cloud/shyr-cloud/",r.logo), "") as logo FROM `restaurant` as r  where r.id = ?', [restaurant_id]))
+        .then((results) => {
+          return UniversalFunction.sendSuccess(res, results[0]);
+          //res.render('add_events' , {companies : results});
+        })
+        .catch((err) => {
+          let statusCode = new constants.response().SERVER_ERROR;
+          return res.json(constants.response.sendFailure('DEFAULT_FAILURE_MESSAGE', req.params.lang, statusCode));
+        })
     })
     .catch((err) => {
-      console.log(err);
-      return UniversalFunction.sendError(res, err);
+      let statusCode = new constants.response().SERVER_ERROR;
+      return res.json(constants.response.sendFailure('DEFAULT_FAILURE_MESSAGE', req.params.lang, statusCode));
     });
 };
 
@@ -80,7 +92,7 @@ const addRestaurant = (req, res) => {
  */
 var getRestaurantDetails = (req, res) => {
   const restaurant_id = req.params.id;
-  connection.query(mysql.format('SELECT * from restaurant where id = ?', [restaurant_id]))
+  connection.query(mysql.format('SELECT r.id, r.name, ifnull(concat("https://s3.us-east-2.amazonaws.com/ankit-cloud/shyr-cloud/",r.logo), y) as logo , IFNULL(i.invoice_image, "") as image FROM `restaurant` as r left JOIN restaurant_invoice as i ON i.restaurant_id = r.id  where r.id = ?', [restaurant_id]))
     .then((results) => {
       return UniversalFunction.sendSuccess(res, results);
       //res.render('add_events' , {companies : results});
@@ -100,16 +112,16 @@ const editRestaurant = (req, res) => {
   const restaurant_id = req.params.id;
   connection.query(mysql.format("Select * from restaurant where id = ?", [restaurant_id]))
     .then((restaurantdata) => {
-      if (!req.files.restaurant_logo) {
+      if (!req.files.logo) {
         var image = restaurantdata[0].logo;
       } else {
-        var image = req.files.restaurant_logo[0].key;
+        var image = req.files.logo[0].key;
       }
-      var resturant_name = req.body.resturant_name ? req.body.resturant_name : restaurantdata[0].name;
+      var name = req.body.name ? req.body.name : restaurantdata[0].name;
 
 
       // const updatedAt = moment(new Date(), 'MM/DD/YYYY HH:mm A').format('YYYY-MM-DD HH:mm:ss');
-      connection.query(mysql.format("Update restaurant set name = ?, logo = ? where id = ?", [resturant_name, image, restaurant_id]))
+      connection.query(mysql.format("Update restaurant set name = ?, logo = ? where id = ?", [name, image, restaurant_id]))
         .then((restaurant) => {
           return UniversalFunction.sendSuccess(res, CONSTANTS.STATUS_MSG.SUCCESS.RESTAURANT_UPDATED);
         })
@@ -177,12 +189,14 @@ var addEvents = (req, res) => {
   var submission_start_time = moment(req.body.submission_start_time, 'MM/DD/YYYY HH:mm A').format('YYYY-MM-DD HH:mm:ss');
   var submission_end_time = moment(req.body.submission_end_time, 'MM/DD/YYYY HH:mm A').format('YYYY-MM-DD HH:mm:ss');
   var event_time = req.body.event_time ? req.body.event_time : 0;
+  var event_time_zone = req.body.event_time_zone ? req.body.event_time_zone : '';
+
   // var invoice_order_number = req.body.invoice_order_number;
   // var invoice_date = moment(req.body.invoice_date,'MM/DD/YYYY HH:mm A').format('YYYY-MM-DD HH:mm:ss');
   var cash_prize = req.body.cash_prize;
   var num_winners = req.body.num_winners;
 
-  connection.query("Insert into events(name,description,cash_prize,event_start_time,event_end_time,submission_start_time,submission_end_time,num_winners,event_time) values('" + event_name + "','" + description + "','" + cash_prize + "','" + event_start_time + "','" + event_end_time + "','" + submission_start_time + "','" + submission_end_time + "','" + num_winners + "','" + event_time + "')")
+  connection.query("Insert into events(name,description,cash_prize,event_start_time,event_end_time,submission_start_time,submission_end_time,num_winners,event_time,event_time_zone) values('" + event_name + "','" + description + "','" + cash_prize + "','" + event_start_time + "','" + event_end_time + "','" + submission_start_time + "','" + submission_end_time + "','" + num_winners + "','" + event_time + "','" + event_time_zone + "')")
     .then((events) => {
       var event_id = events.insertId;
       // var rest = JSON.parse("[" + restaurant + "]");
@@ -208,7 +222,7 @@ var addEvents = (req, res) => {
       //showEvents(req,res);
     })
     .catch((err) => {
-      console.log(err);
+      console.log('ttt',err);
       UniversalFunction.sendError(res, err);
     });
 }
@@ -221,18 +235,24 @@ var addEvents = (req, res) => {
 const addEvent = async (req, res) => {
   try {
     console.log(`====== Add Event API ======`);
-    console.log(req.body);
+   // console.log(req.body);
+   let name = req.body.name ? req.body.name : '';
+   let description = req.body.description ? req.body.description : '';
+
     let event = {
-      name: req.body.name.trim(),
-      description: req.body.description.trim(),
+      name: name,
+      description: description,
       event_start_time: moment(req.body.event_start_time, 'MM/DD/YYYY HH:mm').format('YYYY-MM-DD HH:mm:ss'),
       event_end_time: moment(req.body.event_end_time, 'MM/DD/YYYY HH:mm').format('YYYY-MM-DD HH:mm:ss'),
       submission_start_time: moment(req.body.submission_start_time, 'MM/DD/YYYY HH:mm').format('YYYY-MM-DD HH:mm:ss'),
       submission_end_time: moment(req.body.submission_end_time, 'MM/DD/YYYY HH:mm').format('YYYY-MM-DD HH:mm:ss'),
       total_prizes: req.body.cash_prize.length
-    };
 
-    let eventResult = await connection.query("Insert into events(name,description,event_start_time,event_end_time,submission_start_time,submission_end_time,total_prizes) values('" + event.name + "','" + event.description + "','" + event.event_start_time + "','" + event.event_end_time + "','" + event.submission_start_time + "','" + event.submission_end_time + "','" + event.total_prizes + "')");
+    };
+    var event_time_zone = req.body.event_time_zone ? req.body.event_time_zone : '';
+    event.event_time_zone = event_time_zone;
+
+    let eventResult = await connection.query("Insert into events(name,description,event_start_time,event_end_time,submission_start_time,submission_end_time,total_prizes,event_time_zone) values('" + event.name + "','" + event.description + "','" + event.event_start_time + "','" + event.event_end_time + "','" + event.submission_start_time + "','" + event.submission_end_time + "','" + event.total_prizes + "','" + event.event_time_zone + "')");
 
     // insert event
     let event_id = eventResult.insertId; // now we have event id
@@ -289,6 +309,7 @@ const addEvent = async (req, res) => {
       event_id: event_id
     });
   } catch (error) {
+    console.log(error)
     UniversalFunction.sendError(res, error);
   }
 }
