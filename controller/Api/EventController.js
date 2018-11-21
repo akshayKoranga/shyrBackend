@@ -71,15 +71,14 @@ var upcomingEvents = (req, res) => {
   var timezone = req.query.timezone ? req.query.timezone : '';
   console.log(timezone, 'upcomingEvents')
   if (timezone == '') {
-    let statusCode = new constants.response().BAD_REQUEST;
-    return res.json(constants.response.sendFailure('INVALID_EVENT_ID', req.params.lang, statusCode));
+    let statusCode = new constants.response().PARAMETER_MISSING;
+    return res.json(constants.response.sendFailure('MANDATORY_PARAMETER_MISSING', req.params.lang, statusCode));
   }
   if (req.query.limit) {
     var limit = parseInt(req.query.limit, 10);
   } else {
     var limit = 50;
   }
-  var timeZoneArray = timezone.split(' ')
   if (req.query.page) {
     var page = req.query.page;
   } else {
@@ -87,12 +86,14 @@ var upcomingEvents = (req, res) => {
   }
 
   var skip = (page - 1) * limit;
-  moment.tz.setDefault('Asia/Kuwait');
 
   var dateTime = new Date();
-
+  // ------ time Zone case ------
+  moment.tz.setDefault('Asia/Kuwait');
+  var timeZoneArray = timezone.split(' ')
   var date = Moment().tz(timeZoneArray[0]).format('YYYY-MM-DD HH:mm:00')
   console.log(date, 'we got date')
+  // ----- end of time zone case -----
   dateTime = moment(dateTime).format("YYYY-MM-DD HH:mm:ss");
 
   var sql = 'Select events.name as event_name,events.id,events.event_start_time,events.event_end_time,events.description,events.total_prizes from events WHERE event_start_time > ? order by events.id DESC limit ? , ?';
@@ -132,8 +133,8 @@ var ongoingEvents = (req, res) => {
   console.log(timezone, 'ongoingEvents')
 
   if (timezone == '') {
-    let statusCode = new constants.response().BAD_REQUEST;
-    return res.json(constants.response.sendFailure('INVALID_EVENT_ID', req.params.lang, statusCode));
+    let statusCode = new constants.response().PARAMETER_MISSING;
+    return res.json(constants.response.sendFailure('MANDATORY_PARAMETER_MISSING', req.params.lang, statusCode));
   }
   if (req.query.limit) {
     var limit = parseInt(req.query.limit, 10);
@@ -150,7 +151,12 @@ var ongoingEvents = (req, res) => {
   var skip = (page - 1) * limit;
 
   var dateTime = new Date();
-  var date = Moment().tz(timezone).format('YYYY-MM-DD HH:mm:00');
+  // ------ time Zone case ------
+  moment.tz.setDefault('Asia/Kuwait');
+  var timeZoneArray = timezone.split(' ')
+  var date = Moment().tz(timeZoneArray[0]).format('YYYY-MM-DD HH:mm:00')
+  console.log(date, 'we got date')
+  // ----- end of time zone case -----
 
   dateTime = moment(dateTime).format("YYYY-MM-DD HH:mm:ss");
 
