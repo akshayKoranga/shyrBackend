@@ -105,6 +105,9 @@ var Upload = uploadS3.fields([{ // define params for s3 upload
 }]);
 router.post('/add_invoice', auth, Upload, eventController.addInvoice);
 
+router.delete('/delete_invoice', auth,  eventController.delete_invoice);
+
+
 
 router.get('/logout', auth, homeController.logout);
 

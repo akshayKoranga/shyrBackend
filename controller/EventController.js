@@ -440,11 +440,12 @@ const updateEvent = async (req, res) => {
       event_end_time: moment(req.body.event_end_time, 'MM/DD/YYYY HH:mm').format('YYYY-MM-DD HH:mm:ss'),
       submission_start_time: moment(req.body.submission_start_time, 'MM/DD/YYYY HH:mm').format('YYYY-MM-DD HH:mm:ss'),
       submission_end_time: moment(req.body.submission_end_time, 'MM/DD/YYYY HH:mm').format('YYYY-MM-DD HH:mm:ss'),
-      total_prizes: req.body.cash_prize.length
+      total_prizes: req.body.cash_prize.length,
+      event_status: req.body.event_status
     };
 
-    let sql = "Update events set name = ?, description = ?, event_start_time = ?, event_end_time = ?, submission_start_time = ?,submission_end_time = ?, total_prizes = ? where id = ?";
-    let params = [event.name, event.description, event.event_start_time, event.event_end_time, event.submission_start_time, event.submission_end_time, event.total_prizes, event.id];
+    let sql = "Update events set name = ?, description = ?, event_start_time = ?, event_end_time = ?, submission_start_time = ?,submission_end_time = ?, total_prizes = ?, event_status = ? where id = ?";
+    let params = [event.name, event.description, event.event_start_time, event.event_end_time, event.submission_start_time, event.submission_end_time, event.total_prizes, event.event_status, event.id];
     let eventResult = await connection.query(mysql.format(sql, params));
 
     // update event
@@ -642,6 +643,29 @@ const addInvoice = (req, res) => {
 };
 
 
+
+const delete_invoice = (req, res) => {
+  req.assert('invoice_id', 'Invoice id is required').notEmpty();
+  var errors = req.validationErrors();
+
+  if (errors) {
+    return UniversalFunction.sendError(res, errors);
+  }
+  var invoice_id = req.body.invoice_id ? req.body.invoice_id : '';
+
+
+  // connection.query(mysql.format("Insert into gameplay SET ?", [insertGamePlay]))
+
+  connection.query(mysql.format("DELETE FROM `restaurant_invoice` WHERE invoice_id = ?", [invoice_id]))
+    .then((result) => {
+      return UniversalFunction.sendSuccess(res, 1);
+    })
+    .catch((err) => {
+      console.log(err);
+      return UniversalFunction.sendError(res, err);
+    });
+};
+
 module.exports = {
   showEvents,
   getRestaurantList,
@@ -656,5 +680,6 @@ module.exports = {
   //eventDesc,
   deleteEvents,
   getEventsRestaurant,
-  addInvoice
+  addInvoice,
+  delete_invoice
 };

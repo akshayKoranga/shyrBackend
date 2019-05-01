@@ -213,6 +213,9 @@ let addBoosterPack = (req, res) => {
   var cash_prize_id = req.body.cash_prize_id ? req.body.cash_prize_id : '';
   var booster_time = req.body.booster_time ? req.body.booster_time : 0;
   var booster_attempt = req.body.booster_attempt ? req.body.booster_attempt : 0;
+  var booster_pack_attempt_price = req.body.booster_pack_attempt_price ? req.body.booster_pack_attempt_price : 0;
+  var booster_pack_time_price = req.body.booster_pack_time_price ? req.body.booster_pack_time_price : 0;
+
   if (event_id.trim() == '' || cash_prize_id.trim() == '') {
     let statusCode = new constants.response().PARAMETER_MISSING;
     return res.json(constants.response.sendFailure('MANDATORY_PARAMETER_MISSING', req.params.lang, statusCode));
@@ -222,7 +225,7 @@ let addBoosterPack = (req, res) => {
     .then((getBooster) => {
       if (getBooster.length > 0) {
         getBooster[0].booster_pack_id
-        connection.query(mysql.format("Update booster_pack set booster_time = ?, booster_attempt = ? where booster_pack_id = ?", [booster_time, booster_attempt, getBooster[0].booster_pack_id]))
+        connection.query(mysql.format("Update booster_pack set booster_time = ?, booster_attempt = ?, booster_pack_attempt_price = ?, booster_pack_time_price = ? where booster_pack_id = ?", [booster_time, booster_attempt, booster_pack_attempt_price, booster_pack_time_price, getBooster[0].booster_pack_id]))
           .then((updateBooster) => {
             connection.query(mysql.format("SELECT * FROM `booster_pack` WHERE booster_pack_id = ?", [getBooster[0].booster_pack_id]))
               .then((getBooster) => {
@@ -247,6 +250,8 @@ let addBoosterPack = (req, res) => {
           cash_prize_id: cash_prize_id,
           booster_time: booster_time,
           booster_attempt: booster_attempt,
+          booster_pack_attempt_price: booster_pack_attempt_price,
+          booster_pack_time_price:booster_pack_time_price
         }
         connection.query(mysql.format("Insert into booster_pack SET ?", [insertBoosterPack]))
           .then((addBoosterPack) => {

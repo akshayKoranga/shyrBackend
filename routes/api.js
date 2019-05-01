@@ -5,6 +5,7 @@ let uploadS3 = require('../Middleware/storage.js')('shyr-cloud');
 
 
 var eventController = require('../controller/Api/EventController');
+// var homeController = require('/home/ubuntu/shyr_testing/controller/Api/HomeController');
 var homeController = require('../controller/Api/HomeController');
 var gameController = require('../controller/Api/GamePlayController');
 var userController = require('../controller/Api/userController');
@@ -14,8 +15,8 @@ var auth = require('../Middleware/CheckSession');
 var router = express.Router();
 
 router.use(function (req, res, next) {
-    req.header('Content-Type', 'application/json');
-    next();
+  req.header('Content-Type', 'application/json');
+  next();
 });
 
 router.get('/', homeController.showHome);
@@ -45,6 +46,10 @@ router.get('/fun-game', auth.appAuth, gameController.getFunGame);
 // })
 router.put('/game/:lang/update_game_play', auth.appAuth, gameController.updateResult);
 router.get('/game/:lang/get_user_record', auth.appAuth, gameController.allUserRecord);
+router.get('/game/:lang/game_leader_board', auth.adminAuth, gameController.gameLeaderBoard);
+router.get('/game/:lang/game_participants', auth.adminAuth, gameController.gameParticipants);
+router.get('/game/:lang/game_yet_play', auth.adminAuth, gameController.gameYetToPlay);
+
 
 //------------- event api ----------------
 router.get('/event/:lang/upcoming_events', auth.appAuth, eventController.upcomingEvents);
@@ -55,9 +60,10 @@ router.post('/event/:lang/add_booster_pack', auth.appAuth, eventController.addBo
 
 //--------------  user api ---------------
 var Upload = uploadS3.fields([{ // define params for s3 upload  
-    name: 'user_invoice_image'
-  }]);
+  name: 'user_invoice_image'
+}]);
 router.post('/user/:lang/add_invoice', auth.appAuth, Upload, userController.addInvoice);
+router.get('/user/:lang/user_win',  userController.user_win);
 
 
 

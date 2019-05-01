@@ -1,7 +1,7 @@
 
 var http = require('http');
 var express = require('express');
-var engine = require('ejs-locals'); // to provide layout functionality
+// var engine = require('ejs-locals'); // to provide layout functionality
 var bodyParser = require('body-parser');
 var validator = require('express-validator');
 var session = require('express-session');
@@ -24,8 +24,8 @@ var server = http.createServer(app);
 var io = socketIO(server);
 //var io = require('socket.io')(server, { wsEngine: 'ws' });
 
-app.engine('ejs',engine);
-app.set('view engine','ejs');
+// app.engine('ejs',engine);
+// app.set('view engine','ejs');
 // app.set('trust proxy', 1)
 
 var middleware = [
@@ -94,6 +94,13 @@ app.locals.moment = moment;
 // });
 
 
-server.listen(3000,() => {
-  console.log('listening to port 3000');
+// server.listen(3001,() => {
+//   console.log('listening to port 3001');
+// });
+// server.set('port', process.env.PORT || 3001);
+
+server.listen(3000, () => {
+  // eslint-disable-next-line no-console 
+  console.log(`Connection established on Port: 3000 `);
 });
+

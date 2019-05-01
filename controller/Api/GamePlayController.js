@@ -38,7 +38,7 @@ const getGame = async (req, res) => {
               if (oldGame && oldGame.length > 0) {
                 oldGame = oldGame[0];
                 if (oldGame.game_lost == 1) {
-                 // console.log(oldGame);process.exit()
+                  // console.log(oldGame);process.exit()
 
                   let lost_game_chk = new Promise((resolve, reject) => {
 
@@ -329,7 +329,7 @@ const getNewGame = (gameLevel) => {
 };
 
 const updateResult = (req, res) => {
-  //--------------- Define variable ----------
+  //-------------- Define variable --------------
   let game_play_id = req.body.game_play_id ? req.body.game_play_id : '';
   var game_lost = req.body.game_lost ? req.body.game_lost : '';
   var game_play_time = req.body.game_play_time ? req.body.game_play_time : '';
@@ -352,6 +352,7 @@ const updateResult = (req, res) => {
     .then((oldGame) => {
       if (oldGame && oldGame.length > 0) {
         oldGame = oldGame[0];
+        //console.log(oldGame.cash_prize_id);process.exit()
         // update game play time of last level
 
         if (oldGame.level == '1') {
@@ -374,14 +375,13 @@ const updateResult = (req, res) => {
         // update
         connection.query(mysql.format("Update gameplay set isComplete = ?, game_lost = ?, level_one_time = ?, level_two_time = ?, level_three_time = ? where id = ?", [1, oldGame.game_lost, oldGame.level_one_time, oldGame.level_two_time, oldGame.level_three_time, oldGame.id]))
           .then((result) => {
-            //  console.log(result);process.exit()
             if (oldGame.game_lost === 1) {
               return res.json(constants.response.sendSuccess('GAME_LOST', '', req.params.lang));
             }
             if (oldGame.level === 3) {
               let total_play_time = oldGame.level_one_time + oldGame.level_two_time + oldGame.level_three_time;
               // insert in leader board
-              connection.query("Insert into leaderboard(event_id, game_id, user_id, total_play_time) values('" + oldGame.event_id + "', '" + oldGame.id + "', '" + oldGame.user_id + "', '" + total_play_time + "')")
+              connection.query("Insert into leaderboard(event_id, game_id, user_id, cash_prize_id, total_play_time) values('" + oldGame.event_id + "', '" + oldGame.id + "', '" + oldGame.user_id + "', '" + oldGame.cash_prize_id + "', '" + total_play_time + "')")
                 .then((gameOver) => {
                   return res.json(constants.response.sendSuccess('GAME_FINISHED', '', req.params.lang));
                 })
@@ -395,7 +395,7 @@ const updateResult = (req, res) => {
               connection.query(mysql.format("Select * from event_game_rules where event_id = ?  AND level = ?", [oldGame.event_id, 2]))
                 .then((gameRuleData) => {
                   if (gameRuleData.length > 0) {
-                    req.query.cash_prize_id = oldGame.cash_prize_id
+                    req.query.cash_prize_id = oldGame.cash_prize_id;
                     req.query.event_id = oldGame.event_id;
                     getGame(req, res);
                   } else {
@@ -458,6 +458,170 @@ const allUserRecord = (req, res) => {
     });
 };
 
+
+
+//---------------------- Leader board ----------------------
+const gameLeaderBoard = (req, res) => {
+  //--------------- Define variable ---------------
+  let event_id = req.query.event_id ? req.query.event_id : '';
+  // let cash_prize_id = req.query.cash_prize_id ? req.query.cash_prize_id : '';
+
+  // ----------- Check mandatory param --------------
+  if (event_id.trim() == '' ) {
+    let statusCode = new constants.response().PARAMETER_MISSING;
+    return res.json(constants.response.sendFailure('MANDATORY_PARAMETER_MISSING', req.params.lang, statusCode));
+  }
+  // ---------------- parse Int ------------------
+
+  connection.query(mysql.format("SELECT  g.*, c.*, l.*,u.* FROM `leaderboard` as l JOIN users as u ON u.id = l.user_id JOIN gameplay as g ON g.id = l.game_id JOIN cash_prize as c ON c.id = l.cash_prize_id WHERE l.`event_id` = ?  ORDER BY `total_play_time` ASC", [event_id]))
+    .then((allUserRecord) => {
+      var new_result = allUserRecord;
+      var flags = [],
+          all_cash_prize = [],
+          l = new_result.length,
+          filterArray = [],
+          i;
+        for (i = 0; i < l; i++) {
+          if (flags[new_result[i].cash_prize_id]) continue;
+          flags[new_result[i].cash_prize_id] = true;
+          all_cash_prize.push(new_result[i].cash_prize_id);
+        }
+        //console.log(all_cash_prize)
+
+        for (let i = 0; i < all_cash_prize.length; i += 1) {
+          var cashPrizeData = new_result.filter(function (obj) {
+            return obj.cash_prize_id == all_cash_prize[i];
+          });
+          //console.log(cashPrizeData);process.exit()
+          var cash_prize_data =  {
+            cash_prize_id: all_cash_prize[i],
+            event_id: cashPrizeData[0].event_id,
+            cash_prize: cashPrizeData[0].cash_prize,
+            num_winners: cashPrizeData[0].num_winners,
+            sort_order: cashPrizeData[0].sort_order,
+            cash_prize_data:cashPrizeData
+          }
+          
+          filterArray.push(cash_prize_data)
+        }
+      return res.json(constants.response.sendSuccess('DEFAULT_SUCCESS_MESSAGE', filterArray, req.params.lang));
+      //neLy8oDlJdbfe8swefqanZlyhgXKKg6F
+    })
+    .catch((error) => {
+      console.log(error, 'error')
+      let statusCode = new constants.response().SERVER_ERROR;
+      return res.json(constants.response.sendFailure('DEFAULT_FAILURE_MESSAGE', req.params.lang, statusCode));
+    });
+};
+
+
+
+//---------------------- Participants board ----------------------
+const gameParticipants = (req, res) => {
+  //--------------- Define variable ---------------
+  let event_id = req.query.event_id ? req.query.event_id : '';
+  //let cash_prize_id = req.query.cash_prize_id ? req.query.cash_prize_id : '';
+
+  // ----------- Check mandatory param --------------
+  if (event_id.trim() == '') {
+    let statusCode = new constants.response().PARAMETER_MISSING;
+    return res.json(constants.response.sendFailure('MANDATORY_PARAMETER_MISSING', req.params.lang, statusCode));
+  }
+  // ---------------- parse Int ------------------
+
+  connection.query(mysql.format("SELECT g.*, u.* FROM `gameplay` as g JOIN users as u ON u.id = g.user_id WHERE `event_id` = ? ", [event_id]))
+    .then((allUserRecord) => {
+      var promises = allUserRecord.map(element => {
+        //promise to check and insert all super category
+        return new Promise((resolve, reject) => {
+          connection.query(mysql.format("SELECT b.* FROM `booster_pack` as b WHERE `user_id` = ? AND `event_id` = ? AND `cash_prize_id` = ?", [element.user_id, event_id, element.cash_prize_id]))
+            .then((booster_pack) => {
+              element.booster_pack = booster_pack
+              resolve(element)
+            }).catch(error => {
+              console.log(error);
+              let statusCode = new constants.response().SERVER_ERROR;
+              reject(error)
+            });
+        });
+      });
+      Promise.all(promises).then(objectDetail => {
+        var new_result = objectDetail;
+        // var match_item = new_result.filter(function (obj) {
+        //   return obj.cash_prize_id == item.cash_prize_id;
+        // });
+        // -------- get unique cash prize -----
+        var flags = [],
+          all_cash_prize = [],
+          l = new_result.length,
+          filterArray = [],
+          i;
+        for (i = 0; i < l; i++) {
+          if (flags[new_result[i].cash_prize_id]) continue;
+          flags[new_result[i].cash_prize_id] = true;
+          all_cash_prize.push(new_result[i].cash_prize_id);
+        }
+        console.log(all_cash_prize)
+
+        for (let i = 0; i < all_cash_prize.length; i += 1) {
+          var cashPrizeData = new_result.filter(function (obj) {
+            return obj.cash_prize_id == all_cash_prize[i];
+          });
+          var cash_prize_data =  {
+            cash_prize_id: all_cash_prize[i],
+            cash_prize_data:cashPrizeData
+          }
+          
+          filterArray.push(cash_prize_data)
+        }
+        // ---------------
+        return res.json(constants.response.sendSuccess('DEFAULT_SUCCESS_MESSAGE', filterArray, req.params.lang));
+
+        // ----End Send user group data --------
+      }).catch(error => {
+        console.log(error);
+        let statusCode = new constants.response().SERVER_ERROR;
+        return res.json(constants.response.sendFailure('DEFAULT_FAILURE_MESSAGE', req.params.lang, statusCode));
+      });
+      //neLy8oDlJdbfe8swefqanZlyhgXKKg6F
+    })
+    .catch((error) => {
+      console.log(error, 'error')
+      let statusCode = new constants.response().SERVER_ERROR;
+      return res.json(constants.response.sendFailure('DEFAULT_FAILURE_MESSAGE', req.params.lang, statusCode));
+    });
+};
+
+
+
+
+//----------------------  yet-to-play board ----------------------
+const gameYetToPlay = (req, res) => {
+  //--------------- Define variable ---------------
+  // let event_id = req.query.event_id ? req.query.event_id : '';
+
+  // ----------- Check mandatory param --------------
+  // if (event_id.trim() == '') {
+  //   let statusCode = new constants.response().PARAMETER_MISSING;
+  //   return res.json(constants.response.sendFailure('MANDATORY_PARAMETER_MISSING', req.params.lang, statusCode));
+  // }
+  // ---------------- parse Int ------------------
+
+  connection.query(mysql.format("SELECT ui.*, u.* FROM `user_invoice` as ui JOIN users as u ON u.id = ui.user_id WHERE (user_id, event_id ) NOT IN( SELECT user_id, event_id FROM gameplay)  ", []))
+    .then((allUserRecord) => {
+      return res.json(constants.response.sendSuccess('DEFAULT_SUCCESS_MESSAGE', allUserRecord, req.params.lang));
+      //neLy8oDlJdbfe8swefqanZlyhgXKKg6F
+    })
+    .catch((error) => {
+      console.log(error, 'error')
+      let statusCode = new constants.response().SERVER_ERROR;
+      return res.json(constants.response.sendFailure('DEFAULT_FAILURE_MESSAGE', req.params.lang, statusCode));
+    });
+};
+
+
+
+
 const getFunGame = (req, res) => {
   try {
     let gameLevel = Math.ceil(Math.random() * 10) % 3;
@@ -474,7 +638,10 @@ module.exports = {
   getGame: getGame,
   getFunGame: getFunGame,
   updateResult: updateResult,
-  allUserRecord
+  allUserRecord,
+  gameLeaderBoard,
+  gameParticipants,
+  gameYetToPlay
 };
 
 
